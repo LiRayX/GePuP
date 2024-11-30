@@ -1,16 +1,40 @@
-
-
-#include <Eigen/Core>
+#define EIGEN_MALLOC_ALREADY_ALIGNED 0
+#include "../lib/Eigen/Core"
+#include "../lib/unsupported/Eigen/Splines"
+#include "../src/Vec.h"
 #include <iostream>
 
-int main(int argc, char const* argv[]) {
-    Eigen::VectorXd xvals(3);
-    Eigen::VectorXd yvals(xvals.rows());
-    xvals << 0, 15, 30;
-    yvals << 0, 12, 17;
+typedef Eigen::Spline<double, 2, 3> Spline2d;
 
-    typedef Eigen::Spline<double, 1> SplineType;
-    SplineType spline = Eigen::SplineFitting<SplineType>::Interpolate(yvals.transpose());
+int main() {
+    // 给定一组2D点
+    std::vector<Vec> points;
+    points.push_back(Vec{0, 0});
+    points.push_back(Vec{1, 2});
+    points.push_back(Vec{1, 2});
+    points.push_back(Vec{2, 3});
+    points.push_back(Vec{3, 1});
+    points.push_back(Vec{4, 0});
+    // points.push_back(Eigen::Vector2d(1, 2));
+    // points.push_back(Eigen::Vector2d(2, 3));
+    // points.push_back(Eigen::Vector2d(3, 1));
+    // points.push_back(Eigen::Vector2d(4, 0));
 
-    std::cout << spline(12.34) << std::endl;
+    // 将点转换为Eigen::MatrixXd格式
+    Eigen::MatrixXd pts(2, points.size());
+    for (int i = 0; i < points.size(); ++i) {
+        pts(0, i) = points[i][0];
+        pts(1, i) = points[i][1];
+    }
+
+    // 创建样条曲线
+    Spline2d spline = Eigen::SplineFitting<Spline2d>::Interpolate(pts, 3);
+
+    // 在参数u = 0到1之间均匀采样点
+    for (double u = 0; u <= 1; u += 0.1) {
+        Eigen::Vector2d point = spline(u);
+        std::cout << "u = " << u << ", point = (" << point(0) << ", " << point(1) << ")" << std::endl;
+    }
+
+    return 0;
 }
