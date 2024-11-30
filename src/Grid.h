@@ -5,6 +5,8 @@
 #include <assert.h>
 #include "Vec.h"
 
+using MultiIndex = std::array<int, 2>;
+
 class Grid
 {
 public:
@@ -21,23 +23,9 @@ public:
   const int *get_size() const;
 
   // return the index of cell, counting from left-down, starting from 0
-  int CellIndex(int i, int j) const;
-  std::array<int, 2> MultiCellIndex(int index) const;
+  int MultiToSingle(int i, int j) const;
+  MultiIndex SingleToMulti(int index) const;
 
-  // Verify if the cell is on the boundary
-  bool IfOnLeftBound(int i, int j) const;
-  bool IfOnRightBound(int i, int j) const;
-  bool IfOnDownBound(int i, int j) const;
-  bool IfOnUpBound(int i, int j) const;
-
-  // Verify if the cell is near the boundary
-  bool IfNearLeftBound(int i, int j) const;
-  bool IfNearRightBound(int i, int j) const;
-  bool IfNearDownBound(int i, int j) const;
-  bool IfNearUpBound(int i, int j) const;
-
-  bool IfXcoorInner(int i, int j) const;
-  bool IfYcoorInner(int i, int j) const;
 
   Vec operator()(int i, int j) const;
 
@@ -51,6 +39,7 @@ public:
   bool contain(const Vec &pos) const;
   bool contain(const Grid &rhs) const;
   int volume() const;
+  MultiIndex LocateCell(const Vec &pos) const;
   Grid refine() const;
   Grid coarsen() const;
 
@@ -106,67 +95,17 @@ double Grid::get_h() const { return h; }
 
 const int *Grid::get_size() const { return size; }
 
-int Grid::CellIndex(int i, int j) const
+int Grid::MultiToSingle(int i, int j) const
 {
   return i + j * size[1];
 }
 
-std::array<int, 2> Grid::MultiCellIndex(int index) const
+MultiIndex Grid::SingleToMulti(int index) const
 {
     int i, j;
     j = index / size[1];
     i = index % size[1];
     return {i, j};
-}
-
-bool Grid::IfOnLeftBound(int i, int j) const
-{
-  return i == 0;
-}
-
-bool Grid::IfOnRightBound(int i, int j) const
-{
-  return i == size[0] - 1;
-}
-
-bool Grid::IfOnDownBound(int i, int j) const
-{
-  return j == 0;
-}
-
-bool Grid::IfOnUpBound(int i, int j) const
-{
-  return j == size[1] - 1;
-}
-
-bool Grid::IfNearLeftBound(int i, int j) const
-{
-  return i == 1;
-}
-
-bool Grid::IfNearRightBound(int i, int j) const
-{
-  return i == size[0] - 2;
-}
-
-bool Grid::IfNearDownBound(int i, int j) const
-{
-  return j == 1;
-}
-
-bool Grid::IfNearUpBound(int i, int j) const
-{
-  return j == size[1] - 2;
-}
-
-bool Grid::IfXcoorInner(int i, int j) const
-{
-  return i > 1 && i < size[0] - 2;
-}
-
-bool Grid::IfYcoorInner(int i, int j) const
-{
-  return j > 1 && j < size[1] - 2;
 }
 
 Vec Grid::operator()(int i, int j) const
@@ -212,6 +151,16 @@ bool Grid::contain(const Grid &rhs) const
 int Grid::volume() const
 {
   return prod((hi() - lo()) / h);
+}
+
+MultiIndex Grid::LocateCell(const Vec &pos) const
+{
+  MultiIndex index;
+  for (int i = 0; i < 2; i++)
+  {
+    index[i] = static_cast<int>((pos[i] - lo()[i]) / h);
+  }
+  return index;
 }
 
 Grid Grid::refine() const { return Grid(lo(), hi(), h / 2); }
