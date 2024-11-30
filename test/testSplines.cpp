@@ -6,7 +6,8 @@
 
 typedef Eigen::Spline<double, 2, 3> Spline2d;
 
-int main() {
+int main() 
+{
     // 给定一组2D点
     std::vector<Vec> points;
     points.push_back(Vec{0, 0});

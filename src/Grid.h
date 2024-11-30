@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <assert.h>
+#include <array>
 #include "Vec.h"
 
 using MultiIndex = std::array<int, 2>;
