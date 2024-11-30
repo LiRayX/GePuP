@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Eigen/Dense>
 #include <iostream>
 #include <assert.h>
 #include "Vec.h"
