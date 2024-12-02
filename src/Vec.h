@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cmath>
 #include <initializer_list>
+#include "../lib/Eigen/Core"
+
 
 class Vec
 {
@@ -19,6 +21,11 @@ public:
     auto j = l.begin();
     for (int i = 0; i < 2; i++)
       coord[i] = *j++;
+  }
+  Vec(Eigen::Vector2d EigenVector)
+  {
+      for (int i = 0; i < 2; i++)
+      coord[i] = EigenVector[i];
   }
 
   // The conversion constructor
@@ -249,4 +256,9 @@ inline Vec counterclockwise(const Vec &v)
 inline double cross(const Vec &lhs, const Vec &rhs)
 {
   return lhs[0] * rhs[1] - lhs[1] * rhs[0];
+}
+
+inline Vec outernormal(const Vec &v)
+{
+  return normalize(clockwise(v));
 }
