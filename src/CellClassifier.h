@@ -6,6 +6,7 @@
 #include "../src/BoundaryCurve.h"
 #include <vector>
 #include <unordered_set>
+#include <unordered_map>
 #include <functional>
 
 /// @brief Hash function for MultiIndex to be used in unordered_set 
@@ -19,8 +20,10 @@ namespace std {
 }
 
 using MultiIndexSet = std::unordered_set<MultiIndex>;
+using VecList = std::vector<Vec>;
+using CutPointsMap = std::unordered_map<MultiIndex, VecList>;
 
-
+/// @brief Classify the cells in the grid into different categories
 class CellClassifier
 {
 public:
@@ -41,7 +44,10 @@ public:
 protected:
     MultiIndexSet DeadCells;
     MultiIndexSet AliveCells;
+
     MultiIndexSet CutCells;
+    CutPointsMap CutPoints;
+
     MultiIndexSet SideCells;
     MultiIndexSet EdgeCells;
     MultiIndexSet CoreCells;
@@ -53,5 +59,6 @@ void CellClassifier::LocateCutCells(const Grid &grid, const BoundaryCurve &bound
     {
         MultiIndex index = grid.LocateCell(point);
         CutCells.insert(index);
+        CutPoints[index].push_back(point);
     }
 }

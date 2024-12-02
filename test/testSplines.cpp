@@ -12,8 +12,8 @@ int main()
     std::vector<Vec> points;
     points.push_back(Vec{0, 0});
     points.push_back(Vec{1, 2});
-    points.push_back(Vec{1, 2});
-    points.push_back(Vec{2, 3});
+    // points.push_back(Vec{1, 2});
+    // points.push_back(Vec{2, 3});
     points.push_back(Vec{3, 1});
     points.push_back(Vec{4, 0});
     // points.push_back(Eigen::Vector2d(1, 2));
@@ -36,6 +36,19 @@ int main()
         Eigen::Vector2d point = spline(u);
         std::cout << "u = " << u << ", point = (" << point(0) << ", " << point(1) << ")" << std::endl;
     }
+
+     double t = 0.5; // 参数t的取值范围为[0, 1]
+    Eigen::Vector2d derivative = spline.derivatives(t, 1).col(1);
+
+    // 计算法向量
+    Eigen::Vector2d normal(-derivative[1], derivative[0]);
+    normal.normalize();
+
+    // 输出结果
+    std::cout << "导数: " << derivative.transpose() << std::endl;
+    std::cout << "法向量: " << normal.transpose() << std::endl;
+
+    return 0;
 
     return 0;
 }
