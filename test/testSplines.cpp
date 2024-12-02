@@ -48,7 +48,7 @@ int main()
     std::cout << "导数: " << derivative.transpose() << std::endl;
     std::cout << "法向量: " << normal.transpose() << std::endl;
 
-    return 0;
+    
 
     return 0;
 }

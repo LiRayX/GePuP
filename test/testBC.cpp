@@ -24,7 +24,7 @@ int main()
     std::vector<int> endPoints = {0, 3, 6};
 
     BoundaryCurve boundaryCurve(points, endPoints);
-    boundaryCurve.LocalInterpolate();
+    // boundaryCurve.PieceWiseFit();
 
     SplineList splines = boundaryCurve.GetSplines();
     for (int i = 0; i < splines.size(); ++i)

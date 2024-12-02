@@ -12,35 +12,35 @@ using VecList = std::vector<Vec>;
 using Spline2d = Eigen::Spline<double, 2, 3>;
 using SplineList = std::vector<Spline2d>;
 
+/// @brief Using segement B-spline to represent boundary curve
 class BoundaryCurve
 {
 public:
+    /// @brief Constructor
     BoundaryCurve() = default;
-
     BoundaryCurve(const VecList& controlPoints, const std::vector<int>& endPoints)
-        : ControlPoints(controlPoints), IndexEndPoints(endPoints) {}
-
+        : ControlPoints(controlPoints), IndexEndPoints(endPoints) {PieceWiseFit();}
+    /// @brief Get ControlPoints
     VecList GetControlPoints() const { return ControlPoints; }
+    /// @brief Get EndPoints
     std::vector<int> GetEndPoints() const { return IndexEndPoints; }
-
+    /// @brief Get piece-wise B-spline
     SplineList GetSplines() const { return Splines; }
-
-    
-    Spline2d GlobalInterpolate() const;
-    void LocalInterpolate();
-
-
-
+    /// @brief Fit curve globally, a B-spline from startpoint to finalpoint
+    /// @return Single B-Spline
+    Spline2d GlobalFit() const;
+    /// @brief Fit curve Piece-Wise, sequence B-splines according to IndexEndPoints
+    void PieceWiseFit();
 
 protected:
-    VecList ControlPoints;
-    std::vector<int> IndexEndPoints;
-    SplineList Splines;
+    VecList ControlPoints; //Start point should coincide with Final point, to get a closed curve
+    std::vector<int> IndexEndPoints; //Deciding which points to be endpoints of piece-wise spline
+    SplineList Splines; //Sequence of spline
 };
 
 
 
-Spline2d BoundaryCurve::GlobalInterpolate() const
+Spline2d BoundaryCurve::GlobalFit() const
 {
     Eigen::MatrixXd pts(2, ControlPoints.size());
     for (int i = 0; i < ControlPoints.size(); ++i)
@@ -52,7 +52,7 @@ Spline2d BoundaryCurve::GlobalInterpolate() const
     return Eigen::SplineFitting<Spline2d>::Interpolate(pts, 3);
 }
 
-void BoundaryCurve::LocalInterpolate()
+void BoundaryCurve::PieceWiseFit()
 {
     for (int i = 0; i < IndexEndPoints.size() - 1; i++)
     {
