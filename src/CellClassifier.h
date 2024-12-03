@@ -53,12 +53,14 @@ protected:
     MultiIndexSet CoreCells;
 };
 
-void CellClassifier::LocateCutCells(const Grid &grid, const BoundaryCurve &boundaryCurve)
-{
-    for(const auto& point : boundaryCurve.GetControlPoints())
-    {
-        MultiIndex index = grid.LocateCell(point);
-        CutCells.insert(index);
-        CutPoints[index].push_back(point);
-    }
-}
+// void CellClassifier::LocateCutCells(const Grid &grid, const BoundaryCurve &boundaryCurve)
+// {
+//     for(const auto& point : boundaryCurve.GetControlPoints())
+//     {
+//         MultiIndex index = grid.LocateCell(point);
+//         CutCells.insert(index);
+//         CutPoints[index].push_back(point);
+//     }
+// }
+
+

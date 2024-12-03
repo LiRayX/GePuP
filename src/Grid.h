@@ -6,6 +6,7 @@
 #include "Vec.h"
 
 using MultiIndex = std::array<int, 2>;
+using Normal = std::array<int, 2>;
 
 class Grid
 {
@@ -26,9 +27,13 @@ public:
   int MultiToSingle(int i, int j) const;
   MultiIndex SingleToMulti(int index) const;
 
+  //Check if the Point is on the Face
+  bool OnFace(int i, int j, int x, int y, const Vec &point, double tol) const;
+  bool OnFace(MultiIndex index, Normal normal, const Vec &point, double tol) const;
+
+
 
   Vec operator()(int i, int j) const;
-
   // Based on the left-down coord(i,j)
   Vec center(int i, int j) const;
 
@@ -119,6 +124,34 @@ Vec Grid::center(int i, int j) const
   assert(i < size[0] && j < size[1]);
   return corner[0] + Vec{(i + 1. / 2) * h, (j + 1. / 2) * h};
 }
+
+bool Grid::OnFace(int i, int j, int x, int y, const Vec &point, double tol) const
+{
+  assert((x == 0 && (y == 1 || y == -1)) || (y == 0 && (x == 1 || x == -1)));
+  Vec cell_center = this->center(i, j);
+  if(x==0)
+  {
+    return (std::fabs(point[1]-(cell_center[1] + y/2.0 *h)) < tol)&&(std::fabs(point[0]-cell_center[0]) < 1/2.0 *h);
+  }
+  else
+  {
+    return (std::fabs(point[0]-(cell_center[0] + x/2.0 *h)) < tol)&&(std::fabs(point[1]-cell_center[1]) < 1/2.0 *h);
+  }
+}
+bool Grid::OnFace(MultiIndex index, Normal normal, const Vec &point, double tol) const
+{
+  assert((normal[0] == 0 && (normal[1] == 1 || normal[1] == -1)) || (normal[1] == 0 && (normal[0] == 1 || normal[0] == -1)));
+  Vec cell_center = this->center(index[0], index[1]);
+  if(normal[0]==0)
+  {
+    return (std::fabs(point[1]-(cell_center[1] + normal[1]/2.0 *h)) < tol)&&(std::fabs(point[0]-cell_center[0]) < 1/2.0 *h);
+  }
+  else
+  {
+    return (std::fabs(point[0]-(cell_center[0] + normal[0]/2.0 *h)) < tol)&&(std::fabs(point[1]-cell_center[1]) < 1/2.0 *h);
+  }
+}
+
 
 std::ostream &operator<<(std::ostream &os, const Grid &g)
 {
