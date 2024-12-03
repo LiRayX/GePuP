@@ -35,7 +35,8 @@ int main()
     Spline2d spline  = splines[0];
 
     CurveBelonging curveBelonging;
-    curveBelonging.Bisection(g, spline, 0.05, 1e-6);
+    curveBelonging.AdaptiveCheck(g, spline);
+    
     const MultiIndexList& multiIndices = curveBelonging.getMultiIndices();
     const ParaIntervalList& paraIntervals = curveBelonging.getParaIntervals();
     const MultiIndexSet& localCutCells = curveBelonging.getLocalCutCells();

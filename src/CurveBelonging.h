@@ -34,7 +34,11 @@ class CurveBelonging
 public:
     CurveBelonging() = default;
 
-    void Bisection(const Grid &grid, const Spline2d &spline, double step = 0.1, double tol = 1e-6);
+
+
+    void RoughlyCheck(const Grid &grid, const Spline2d &spline, double step = 0.1);
+    void AdaptiveCheck(const Grid &grid, const Spline2d &spline);
+    void Bisection(const Grid &grid, const Spline2d &spline, double tol = 1e-6);
 
     const ParaIntervalList& getParaIntervals() const { return ParaIntervals; }
     const MultiIndexList& getMultiIndices() const { return MultiIndices; }
@@ -45,11 +49,10 @@ protected:
     MultiIndexList MultiIndices;
     MultiIndexSet LocalCutCells;
 };
-
-void CurveBelonging::Bisection(const Grid &grid, const Spline2d &spline, double step, double tol)
+void CurveBelonging::RoughlyCheck(const Grid &grid, const Spline2d &spline, double step)
 {
-    double h = grid.get_h();
-
+    ParaIntervals.clear();
+    MultiIndices.clear();
     double start = 0.0;
     double end = 1.0;
 
@@ -78,18 +81,27 @@ void CurveBelonging::Bisection(const Grid &grid, const Spline2d &spline, double 
         ParaIntervals.push_back({0.0, 1.0});
         MultiIndices.push_back(index_first);
     }
+}
 
-    // MultiIndex index_start = grid.LocateCell(Vec{spline(0)});
-    // MultiIndex index_end = grid.LocateCell(Vec{spline(1)});
-    // int n_cutcell = std::abs(index_end[0] - index_start[0]) + std::abs(index_end[1] - index_start[1]);
-    // if (index_start == index_end)
-    // {
-    //     ParaIntervals.push_back({start, end});
-    //     MultiIndices.push_back(index_start);
-    // } 
-    // else
-    // { 
-    //     while(in)
+void CurveBelonging::AdaptiveCheck(const Grid &grid, const Spline2d &spline)
+{
+    double step = 0.1;
+    RoughlyCheck(grid, spline, step);
+     for (size_t k = 1; k < MultiIndices.size(); ++k) 
+     {
+        int diff_i = std::abs(MultiIndices[k][0] - MultiIndices[k - 1][0]);
+        int diff_j = std::abs(MultiIndices[k][1] - MultiIndices[k - 1][1]);
 
-    // }
+        // 如果 i 或 j 指标之差超过了 1，则对对应位置的参数进行加细
+        if (diff_i + diff_j > 1) 
+        {
+            RoughlyCheck(grid, spline, step / 2);
+        }
+    }
+
+}
+
+void CurveBelonging::Bisection(const Grid &grid, const Spline2d &spline, double tol)
+{
+    
 }
