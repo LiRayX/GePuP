@@ -12,8 +12,12 @@ all: $(TARGET)
 $(TARGET): $(SRC)
 	$(CXX) -o $@ $^
 
+draw: draw.cpp
+	$(CXX) draw.cpp -I/usr/include/python3.10 -I~/.local/lib/python3.10/site-packages/numpy/core/include -lpython3.10 -o draw
+
 # 清理生成的文件
 clean:
+	rm -f draw
 	rm -f $(TARGET)
 
 # 伪目标

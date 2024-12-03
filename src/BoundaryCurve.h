@@ -21,11 +21,14 @@ public:
     BoundaryCurve(const VecList& controlPoints, const std::vector<int>& endPoints)
         : ControlPoints(controlPoints), IndexEndPoints(endPoints) {PieceWiseFit();}
     /// @brief Get ControlPoints
-    VecList GetControlPoints() const { return ControlPoints; }
+    VecList GetControlPoints() const 
+    { return ControlPoints; }
     /// @brief Get EndPoints
-    std::vector<int> GetEndPoints() const { return IndexEndPoints; }
+    const std::vector<int> &GetEndPoints() const 
+    { return IndexEndPoints; }
     /// @brief Get piece-wise B-spline
-    SplineList GetSplines() const { return Splines; }
+    const SplineList &GetSplines() const 
+    { return Splines; }
     /// @brief Fit curve globally, a B-spline from startpoint to finalpoint
     /// @return Single B-Spline
     Spline2d GlobalFit() const;
@@ -48,7 +51,6 @@ Spline2d BoundaryCurve::GlobalFit() const
         pts(0, i) = ControlPoints[i][0];
         pts(1, i) = ControlPoints[i][1];
     }
-
     return Eigen::SplineFitting<Spline2d>::Interpolate(pts, 3);
 }
 
