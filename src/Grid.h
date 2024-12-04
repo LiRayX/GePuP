@@ -31,6 +31,8 @@ public:
   bool OnFace(int i, int j, int x, int y, const Vec &point, double tol) const;
   bool OnFace(MultiIndex index, Normal normal, const Vec &point, double tol) const;
 
+  //
+  double SignDistance(MultiIndex index, Normal normal,const Vec &point) const;
 
 
   Vec operator()(int i, int j) const;
@@ -151,7 +153,25 @@ bool Grid::OnFace(MultiIndex index, Normal normal, const Vec &point, double tol)
     return (std::fabs(point[0]-(cell_center[0] + normal[0]/2.0 *h)) < tol)&&(std::fabs(point[1]-cell_center[1]) < 1/2.0 *h);
   }
 }
-
+double Grid::SignDistance(MultiIndex index, Normal normal, const Vec &point) const
+{
+  assert((normal[0] == 0 && (normal[1] == 1 || normal[1] == -1)) || (normal[1] == 0 && (normal[0] == 1 || normal[0] == -1)));
+  Vec cell_center = this->center(index[0], index[1]);
+  if(normal[0] == 0)
+  {
+    assert(std::fabs(point[0] - cell_center[0]) < 3/2.0 * h);
+    double diff = point[1] - (cell_center[1] + normal[1] / 2.0 * h);
+    // return (std::fabs(diff) >= tol) ? diff : 0;
+    return diff;
+  }
+  else
+  {
+    assert(std::fabs(point[1] - cell_center[1]) < 3/2.0 * h);
+    double diff = std::fabs(point[0] - (cell_center[0] + normal[0] / 2.0 * h));
+    // return (std::fabs(diff) >= tol) ? diff : 0;
+    return diff;
+  }
+}
 
 std::ostream &operator<<(std::ostream &os, const Grid &g)
 {

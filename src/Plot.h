@@ -3,6 +3,7 @@
 #include "../src/Grid.h"
 #include "../src/Vec.h"
 #include "../lib/matplotlib-cpp/matplotlibcpp.h"
+#include "../src/CurveBelonging.h"
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -15,7 +16,7 @@ void plotGrid(const Grid &g);
 void plotControlPoints(const VecList &controlPoints);
 void plotSpline(const Spline2d &spline, double start, double end, double step);
 void plotSplineList(const SplineList &splines, double start, double end, double step);
-
+void plotPieceWiseSpline(const Spline2d &spline, const CurveBelonging &curveBelonging, double step);
 
 void plotGrid(const Grid &g)
 {
@@ -42,7 +43,8 @@ void plotGrid(const Grid &g)
         x_grid.push_back(std::numeric_limits<double>::quiet_NaN()); // 分隔线段
         y_grid.push_back(std::numeric_limits<double>::quiet_NaN()); // 分隔线段
     }
-    plt::plot(x_grid, y_grid);
+        // plt::plot(x_grid, y_grid);
+        plt::plot(x_grid, y_grid, "k-");
 }
 
 void plotControlPoints(const VecList &controlPoints)
@@ -53,7 +55,7 @@ void plotControlPoints(const VecList &controlPoints)
         x.push_back(point[0]);
         y.push_back(point[1]);
     }
-    plt::scatter(x, y, 10.0, {{"color", "red"}});
+    plt::scatter(x, y, 5.0, {{"color", "red"}});
 }
 
 void plotSpline(const Spline2d &spline, double start, double end, double step)
@@ -75,4 +77,27 @@ void plotSplineList(const SplineList &splines, double start, double end, double 
     {
         plotSpline(spline, start, end, step);
     }
+}
+
+void plotPieceWiseSpline(const Spline2d &spline, const CurveBelonging &curveBelonging, double step)
+{
+    const ParaIntervalList &paraIntervals = curveBelonging.getParaIntervals();
+    for (size_t i = 0; i < paraIntervals.size(); ++i)
+    {
+        double start = paraIntervals[i].first;
+        double end = paraIntervals[i].second;
+        plotSpline(spline, start, end, step);
+    }
+}
+
+void plotIntersectionPoints(const Spline2d &spline, const CurveBelonging &curveBelonging)
+{
+    std::vector<double> x, y;
+    VecList intersection_list = curveBelonging.getIntersectionPoints(spline);
+    for (const auto &point : intersection_list)
+    {
+        x.push_back(point[0]);
+        y.push_back(point[1]);
+    }
+    plt::scatter(x, y, 3.0, {{"color", "blue"}});
 }

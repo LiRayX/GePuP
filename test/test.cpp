@@ -12,12 +12,19 @@ int main()
   Vec center = g.center(index[0], index[1]);
   std::cout<<"center: "<<center<<std::endl;
   Vec pos{0.5, 0.35};
-  Vec pos1{0.25, 0.5};
-  Vec pos2{0.5, 0.75};
+  Vec pos1{0.49, 0.35};
+  Vec pos2{0.5-1e-7, 0.35};
+
   bool onface = g.OnFace(index, normal, pos, 1e-6);
+  double dis = g.SignDistance(index, normal, pos);
+  double dis1 = g.SignDistance(index, normal, pos1);
+  double dis2 = g.SignDistance(index, normal, pos2);
   // bool onface1 = g.OnFace(1, 1, 1, 0, pos1, 1e-6);
   // bool onface2 = g.OnFace(1, 1, 1, 0, pos2, 1e-6);
   std::cout<<"onface: "<<onface<<std::endl;
+  std::cout<<"dis:"<<dis<<std::endl;
+  std::cout<<"dis1:"<<dis1<<std::endl;
+  std::cout<<"dis2:"<<dis2<<std::endl;
   // std::cout<<"onface1: "<<onface1<<std::endl;
   // std::cout<<"onface2: "<<onface2<<std::endl;
 

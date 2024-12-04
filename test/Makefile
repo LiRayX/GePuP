@@ -14,11 +14,14 @@ $(TARGET): $(SRC)
 
 draw: draw.cpp
 	$(CXX) draw.cpp -I/usr/include/python3.10 -I~/.local/lib/python3.10/site-packages/numpy/core/include -lpython3.10 -o draw
+curve: curve.cpp
+	$(CXX) curve.cpp -I/usr/include/python3.10 -I~/.local/lib/python3.10/site-packages/numpy/core/include -lpython3.10 -o curve
 
 # 清理生成的文件
 clean:
 	rm -f draw
 	rm -f $(TARGET)
+	rm -f curve
 
 # 伪目标
 .PHONY: all clean
