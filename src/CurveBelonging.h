@@ -64,7 +64,10 @@ public:
     /// @brief Computering the intersection of the curve and the cell
     //Currently using the bisection, Newton's method will be added in the future
     void PieceWiseBelonging(const Grid &grid, const Spline2d &spline, double physical_tol, double para_tol, int max_iter);
-    /// @brief Get the intersection points of the curve and the cell
+    /// @brief Get the intersection points of the curve and the cell. 
+    /// If the curve locates in a single cell, the function will return  A EMPTY VECTOR
+    /// @param spline
+    /// @return std::vector<Vec> intersection points
     VecList getIntersectionPoints(const Spline2d &spline) const;
     
     
@@ -113,7 +116,7 @@ void CurveBelonging::RoughlyCheck(const Grid &grid, const Spline2d &spline, doub
     if (!ParaIntervals.empty())
     {
         double last = ParaIntervals.back().second;
-        if (last < 1.0)
+        if (last < end)
         {
             ParaIntervals.push_back({last, end});
         }
