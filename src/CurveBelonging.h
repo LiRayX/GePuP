@@ -79,13 +79,18 @@ void CurveBelonging::RoughlyCheck(const Grid &grid, const Spline2d &spline, doub
 {
     ParaIntervals.clear();
     MultiIndices.clear();
+
     double start = 0.0;
     double end = 1.0;
 
     MultiIndex index_first = grid.LocateCell(Vec{spline(start)});
+    //Locating the first cell
     LocalCutCells.insert(index_first);
     MultiIndices.push_back(index_first);
+
     //Roughly check which cell is cut by the curve
+    //If a cell is cut by the curve, then the cell is added to the MultiIndices
+    //And correspanding interval will be stored
     for (double u = step; u <= end; u += step)
     {
         Vec point{spline(u)};
@@ -99,17 +104,19 @@ void CurveBelonging::RoughlyCheck(const Grid &grid, const Spline2d &spline, doub
             index_first = index_second;
         }
     }
+    //The last interval should be added, the end piece whole lies in the last cell
     if (!ParaIntervals.empty())
     {
         double last = ParaIntervals.back().second;
         if (last < 1.0)
         {
-            ParaIntervals.push_back({last, 1.0});
+            ParaIntervals.push_back({last, end});
         }
     }
+    //If there is not any cell cut by the curve, then the curve is in a single cell
     else
     {
-        ParaIntervals.push_back({0.0, 1.0});
+        ParaIntervals.push_back({start, end});
     }
 }
 bool CurveBelonging::UncontinuousCell()
@@ -120,6 +127,8 @@ bool CurveBelonging::UncontinuousCell()
         int diff_i = std::abs(MultiIndices[i][0] - MultiIndices[i - 1][0]);
         int diff_j = std::abs(MultiIndices[i][1] - MultiIndices[i - 1][1]);
         int diff = diff_i + diff_j;
+        //If the curve spans two cells, we name it uncontinuous
+        //The adjacent cells that are stored should be adjacent in physical space.
         if(diff > 1)
         {
             uncontinuous = true;
@@ -141,17 +150,19 @@ void CurveBelonging::AdaptiveCheck(const Grid &grid, const Spline2d &spline)
 
 void CurveBelonging::PieceWiseBelonging(const Grid &grid, const Spline2d &spline, double physical_tol, double para_tol, int max_iter)
 {
-    int n_cutcell = LocalCutCells.size();
-    for(int i=0; i<n_cutcell-1; i++)
+    int n_cutcell = MultiIndices.size();
+    //As shown before, the last piece of curve lies in a single cell
+    for(size_t i = 0; i < n_cutcell-1; i++)
     {
         MultiIndex current_cell = MultiIndices[i];
         MultiIndex next_cell = MultiIndices[i+1];
+        //The adjacent cells tell the direction of the curve
         Normal normal = minus(next_cell, current_cell);
         ParaInterval interval = ParaIntervals[i];
         double bisection_result = IntervalBisection(grid, spline, interval, current_cell, normal, physical_tol, para_tol, max_iter);
         ParaIntervals[i].second = bisection_result;
     }
-    for(int i=1; i<n_cutcell; i++)
+    for(size_t i = 1; i < n_cutcell; i++)
     {
         ParaIntervals[i].first = ParaIntervals[i-1].second;
     }
