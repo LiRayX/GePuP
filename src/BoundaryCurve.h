@@ -5,12 +5,15 @@
 #include "../lib/unsupported/Eigen/Splines"
 #include "Vec.h"
 #include "Grid.h"
+#include "CurveBelonging.h"
 #include <iostream>
 #include <vector>
 
 using VecList = std::vector<Vec>;
 using Spline2d = Eigen::Spline<double, 2, 3>;
 using SplineList = std::vector<Spline2d>;
+using PieceWiseBelongingList = std::vector<CurveBelonging>;
+
 
 /// @brief Using segement B-spline to represent boundary curve
 class BoundaryCurve
@@ -34,11 +37,16 @@ public:
     Spline2d GlobalFit() const;
     /// @brief Fit curve Piece-Wise, sequence B-splines according to IndexEndPoints
     void PieceWiseFit();
+    
+    void setPieceWiseBelongingIfo(const Grid &grid, double physical_tol, double para_tol, int max_iter);
+    const PieceWiseBelongingList getPieceWiseBelongingIfo() const { return PieceWiseBelongingIfo; }
+
 
 protected:
     VecList ControlPoints; //Start point should coincide with Final point, to get a closed curve
     std::vector<int> IndexEndPoints; //Deciding which points to be endpoints of piece-wise spline
     SplineList Splines; //Sequence of spline
+    PieceWiseBelongingList PieceWiseBelongingIfo; //Asscoiated with each piece-wise spline
 };
 
 
@@ -67,5 +75,15 @@ void BoundaryCurve::PieceWiseFit()
         }
         Spline2d spline = Eigen::SplineFitting<Spline2d>::Interpolate(pts, 3);
         Splines.push_back(spline);
+    }
+}
+void BoundaryCurve::setPieceWiseBelongingIfo(const Grid &grid, double physical_tol, double para_tol, int max_iter)
+{
+    for(const auto& spline : Splines)
+    {
+        CurveBelonging curveBelonging;
+        curveBelonging.AdaptiveCheck(grid, spline);
+        curveBelonging.PieceWiseBelonging(grid, spline, physical_tol, para_tol, max_iter);
+        PieceWiseBelongingIfo.push_back(curveBelonging);
     }
 }

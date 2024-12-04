@@ -1,9 +1,10 @@
 #pragma once
 
 #include <iostream>
+#include "../lib/Eigen/Core"
+#include "../lib/unsupported/Eigen/Splines"
 #include "../src/Vec.h"
 #include "../src/Grid.h"
-#include "../src/BoundaryCurve.h"
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
@@ -20,6 +21,9 @@ namespace std {
     };
 }
 /// @brief Rename
+using Spline2d = Eigen::Spline<double, 2, 3>;
+using VecList = std::vector<Vec>;
+
 using ParaInterval = std::pair<double, double>;
 using MultiIndex = std::array<int, 2>;
 
@@ -52,7 +56,7 @@ public:
 
 
     /// @brief Roughly check which cell is cut by the curve
-    void RoughlyCheck(const Grid &grid, const Spline2d &spline, double step = 0.1);
+    void RoughlyCheck(const Grid &grid, const Spline2d &spline, double step);
     /// @brief Check if the curve spans two cells
     bool UncontinuousCell();
     /// @brief Adaptive check which cell is cut by the curve
@@ -60,6 +64,7 @@ public:
     /// @brief Computering the intersection of the curve and the cell
     //Currently using the bisection, Newton's method will be added in the future
     void PieceWiseBelonging(const Grid &grid, const Spline2d &spline, double physical_tol, double para_tol, int max_iter);
+    /// @brief Get the intersection points of the curve and the cell
     VecList getIntersectionPoints(const Spline2d &spline) const;
     
     

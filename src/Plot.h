@@ -17,6 +17,7 @@ void plotControlPoints(const VecList &controlPoints);
 void plotSpline(const Spline2d &spline, double start, double end, double step);
 void plotSplineList(const SplineList &splines, double start, double end, double step);
 void plotPieceWiseSpline(const Spline2d &spline, const CurveBelonging &curveBelonging, double step);
+void plotWholeBoundaryCurve(const BoundaryCurve &curve);
 
 void plotGrid(const Grid &g)
 {
@@ -100,4 +101,18 @@ void plotIntersectionPoints(const Spline2d &spline, const CurveBelonging &curveB
         y.push_back(point[1]);
     }
     plt::scatter(x, y, 10.0, {{"color", "purple"}, {"marker", "x"}});
+}
+
+void plotWholeBoundaryCurve(const BoundaryCurve &curve)
+{   //plot control points
+    const VecList &controlPoints = curve.GetControlPoints();
+    plotControlPoints(controlPoints);
+    //plot splines and intersection points
+    const SplineList &splines = curve.GetSplines();
+    const PieceWiseBelongingList &PieceWiseBelongingIfo = curve.getPieceWiseBelongingIfo();
+    for(size_t i = 0; i < splines.size(); i++)
+    {
+        plotPieceWiseSpline(splines[i], PieceWiseBelongingIfo[i], 0.01);
+        plotIntersectionPoints(splines[i], PieceWiseBelongingIfo[i]);
+    }
 }

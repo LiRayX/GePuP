@@ -38,17 +38,18 @@ int main()
     }
     BoundaryCurve curve(controlPoints, endPoints);
     SplineList splines = curve.GetSplines();
-    Spline2d spline  = splines[1];
-    CurveBelonging curveBelonging;
-    curveBelonging.AdaptiveCheck(g, spline);
-    
-    const MultiIndexList& multiIndices = curveBelonging.getMultiIndices();
-    const ParaIntervalList& paraIntervals = curveBelonging.getParaIntervals();
-    const MultiIndexSet& localCutCells = curveBelonging.getLocalCutCells();
+    // Spline2d spline  = splines[1];
+    // CurveBelonging curveBelonging;
+    // curveBelonging.AdaptiveCheck(g, spline);
+
+    // const MultiIndexList& multiIndices = curveBelonging.getMultiIndices();
+    // const ParaIntervalList& paraIntervals = curveBelonging.getParaIntervals();
+    // const MultiIndexSet& localCutCells = curveBelonging.getLocalCutCells();
     // Normal normal = minus(multiIndices[1] , multiIndices[0]);
     double tol = 1e-6;
     double para_tol = 1e-20;
     int max_iter = 100;
+    curve.setPieceWiseBelongingIfo(g, tol, para_tol, max_iter);
     // double bisection_result = IntervalBisection(g, spline, paraIntervals[0], multiIndices[0], Normal{1, 0}, tol, para_tol, 100);
     // std::cout << "First Bisection Result: " << bisection_result << std::endl;
     // Vec intersection{spline(bisection_result)};
@@ -61,51 +62,56 @@ int main()
     // std::cout << "test of Interval Bisection " << std::endl;
     // std::cout << "Bisection Result: " << bisection_result << std::endl;
     // std::cout << "Intersection: " << intersection << std::endl;
-    VecList intersection_list = curveBelonging.getIntersectionPoints(spline);
-    std::cout << "Before Bisection " << std::endl;
-    std::cout << "MultiIndices: " << std::endl;
-    for(const auto& index : multiIndices)
-    {
-        std::cout << index[0] << " " << index[1] << std::endl;
-    }
-    std::cout << "ParaIntervals: " << std::endl;
-    for(const auto& interval : paraIntervals)
-    {
-        std::cout <<"[" << interval.first << " ," << interval.second << "]" << std::endl;
-    } 
-    std::cout << "Intersection Points: " << std::endl;
-    for(const auto& intersection : intersection_list)
-    {
-        std::cout << intersection << std::endl;
-    }
-    std::cout << "LocalCutCells: " << std::endl;
-    for(const auto& index : localCutCells)
-    {
-        std::cout << index[0] << " " << index[1] << std::endl;
-    }
 
-    curveBelonging.PieceWiseBelonging(g, spline, tol, para_tol, max_iter);
-    intersection_list.clear();
-    intersection_list = curveBelonging.getIntersectionPoints(spline);
-    std::cout << "After Bisection " << std::endl;
-    std::cout << "ParaIntervals: " << std::endl;
-    for(const auto& interval : paraIntervals)
-    {
-        std::cout <<"[" << interval.first << " ," << interval.second << "]" << std::endl;
-    } 
-    std::cout << "Intersection Points: " << std::endl;
-    for(const auto& intersection : intersection_list)
-    {
-        std::cout << intersection << std::endl;
-    }
+
+    /****************************************************************************/
+    // VecList intersection_list = curveBelonging.getIntersectionPoints(spline);
+    // std::cout << "Before Bisection " << std::endl;
+    // std::cout << "MultiIndices: " << std::endl;
+    // for(const auto& index : multiIndices)
+    // {
+    //     std::cout << index[0] << " " << index[1] << std::endl;
+    // }
+    // std::cout << "ParaIntervals: " << std::endl;
+    // for(const auto& interval : paraIntervals)
+    // {
+    //     std::cout <<"[" << interval.first << " ," << interval.second << "]" << std::endl;
+    // } 
+    // std::cout << "Intersection Points: " << std::endl;
+    // for(const auto& intersection : intersection_list)
+    // {
+    //     std::cout << intersection << std::endl;
+    // }
+    // std::cout << "LocalCutCells: " << std::endl;
+    // for(const auto& index : localCutCells)
+    // {
+    //     std::cout << index[0] << " " << index[1] << std::endl;
+    // }
+
+    // curveBelonging.PieceWiseBelonging(g, spline, tol, para_tol, max_iter);
+    // intersection_list.clear();
+    // intersection_list = curveBelonging.getIntersectionPoints(spline);
+    // std::cout << "After Bisection " << std::endl;
+    // std::cout << "ParaIntervals: " << std::endl;
+    // for(const auto& interval : paraIntervals)
+    // {
+    //     std::cout <<"[" << interval.first << " ," << interval.second << "]" << std::endl;
+    // } 
+    // std::cout << "Intersection Points: " << std::endl;
+    // for(const auto& intersection : intersection_list)
+    // {
+    //     std::cout << intersection << std::endl;
+    // }
     // 绘制网格线
     plotGrid(g);
-    // 绘制控制点
-    plotControlPoints(controlPoints);
-    //绘制曲线
-    plotPieceWiseSpline(spline, curveBelonging, 0.01);
-    //绘制交点
-    plotIntersectionPoints(spline, curveBelonging);
+    // 绘制边界曲线
+    plotWholeBoundaryCurve(curve);
+    // // 绘制控制点
+    // plotControlPoints(controlPoints);
+    // //绘制曲线
+    // plotPieceWiseSpline(spline, curveBelonging, 0.01);
+    // //绘制交点
+    // plotIntersectionPoints(spline, curveBelonging);
     //显示图像
     plt::save("piecewise_spline.svg");
 
