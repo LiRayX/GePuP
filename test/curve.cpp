@@ -16,14 +16,14 @@ int main()
      //网格信息
     Vec low{0, 0};
     Vec high{1, 1};
-    int n_seg = 4;
+    int n_seg = 8;
     double h = 1.0 / n_seg;
     Grid g(low, high, h);
     //控制点List
     VecList controlPoints;
     //控制点按照逆时针方向
-    int num_points = 9;
-    double radius = 0.25;
+    int num_points = 30;
+    double radius = 0.26;
     for(int i = 0; i <= num_points; i++)
     {
         double x = 0.5 + radius * cos(2 * M_PI * i / num_points);
@@ -31,20 +31,23 @@ int main()
         controlPoints.push_back(Vec{x, y});
     }
     //边界曲线
-    std::vector<int> endPoints{0, 3, 6, 9};
+    std::vector<int> endPoints;
+    for(int i = 0; i <= num_points; i+=3)
+    {
+        endPoints.push_back(i);
+    }
     BoundaryCurve curve(controlPoints, endPoints);
     SplineList splines = curve.GetSplines();
-    Spline2d spline  = splines[0];
-
+    Spline2d spline  = splines[1];
     CurveBelonging curveBelonging;
     curveBelonging.AdaptiveCheck(g, spline);
     
     const MultiIndexList& multiIndices = curveBelonging.getMultiIndices();
     const ParaIntervalList& paraIntervals = curveBelonging.getParaIntervals();
     const MultiIndexSet& localCutCells = curveBelonging.getLocalCutCells();
-    Normal normal = minus(multiIndices[1] , multiIndices[0]);
+    // Normal normal = minus(multiIndices[1] , multiIndices[0]);
     double tol = 1e-6;
-    double para_tol = 1e-12;
+    double para_tol = 1e-20;
     int max_iter = 100;
     // double bisection_result = IntervalBisection(g, spline, paraIntervals[0], multiIndices[0], Normal{1, 0}, tol, para_tol, 100);
     // std::cout << "First Bisection Result: " << bisection_result << std::endl;
@@ -68,7 +71,7 @@ int main()
     std::cout << "ParaIntervals: " << std::endl;
     for(const auto& interval : paraIntervals)
     {
-        std::cout << interval.first << " " << interval.second << std::endl;
+        std::cout <<"[" << interval.first << " ," << interval.second << "]" << std::endl;
     } 
     std::cout << "Intersection Points: " << std::endl;
     for(const auto& intersection : intersection_list)
@@ -88,15 +91,13 @@ int main()
     std::cout << "ParaIntervals: " << std::endl;
     for(const auto& interval : paraIntervals)
     {
-        std::cout << interval.first << " " << interval.second << std::endl;
+        std::cout <<"[" << interval.first << " ," << interval.second << "]" << std::endl;
     } 
     std::cout << "Intersection Points: " << std::endl;
     for(const auto& intersection : intersection_list)
     {
         std::cout << intersection << std::endl;
     }
-
-
     // 绘制网格线
     plotGrid(g);
     // 绘制控制点
@@ -106,7 +107,7 @@ int main()
     //绘制交点
     plotIntersectionPoints(spline, curveBelonging);
     //显示图像
-    plt::save("piecewise_spline.png");
+    plt::save("piecewise_spline.svg");
 
 
 

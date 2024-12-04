@@ -63,6 +63,7 @@
         "list": "cpp",
         "fstream": "cpp",
         "iomanip": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "*.inc": "cpp"
     }
 }

@@ -1,0 +1,12 @@
+Before Bisection 
+MultiIndices: 
+4 5
+ParaIntervals: 
+[0 ,1]
+Intersection Points: 
+LocalCutCells: 
+4 5
+After Bisection 
+ParaIntervals: 
+[0 ,1]
+Intersection Points: 

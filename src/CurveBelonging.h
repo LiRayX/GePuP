@@ -8,7 +8,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <functional>
-
+#include <iomanip>
 
 /// @brief Hash function for MultiIndex to be used in unordered_set 
 namespace std {
@@ -82,8 +82,9 @@ void CurveBelonging::RoughlyCheck(const Grid &grid, const Spline2d &spline, doub
     double start = 0.0;
     double end = 1.0;
 
-    MultiIndex index_first = grid.LocateCell(Vec{spline(0)});
-
+    MultiIndex index_first = grid.LocateCell(Vec{spline(start)});
+    LocalCutCells.insert(index_first);
+    MultiIndices.push_back(index_first);
     //Roughly check which cell is cut by the curve
     for (double u = step; u <= end; u += step)
     {
@@ -100,12 +101,15 @@ void CurveBelonging::RoughlyCheck(const Grid &grid, const Spline2d &spline, doub
     }
     if (!ParaIntervals.empty())
     {
-        ParaIntervals.back().second = 1.0;
+        double last = ParaIntervals.back().second;
+        if (last < 1.0)
+        {
+            ParaIntervals.push_back({last, 1.0});
+        }
     }
     else
     {
         ParaIntervals.push_back({0.0, 1.0});
-        MultiIndices.push_back(index_first);
     }
 }
 bool CurveBelonging::UncontinuousCell()
@@ -145,7 +149,6 @@ void CurveBelonging::PieceWiseBelonging(const Grid &grid, const Spline2d &spline
         Normal normal = minus(next_cell, current_cell);
         ParaInterval interval = ParaIntervals[i];
         double bisection_result = IntervalBisection(grid, spline, interval, current_cell, normal, physical_tol, para_tol, max_iter);
-        std::cout << "Bisection Result: " << bisection_result << std::endl;
         ParaIntervals[i].second = bisection_result;
     }
     for(int i=1; i<n_cutcell; i++)
@@ -164,22 +167,7 @@ VecList CurveBelonging::getIntersectionPoints(const Spline2d &spline) const
     return intersection_list;
 }
 
-
-
-
-
-
-
-
-/// @brief Given the spline, and the direction of curve passing through the cell
-/// @param grid 
-/// @param spline spline
-/// @param interval <a,b> the interval of the curve in the cell
-/// @param normal outer normal of the face
-/// @param tol physical distance tolerance
-/// @param min_interval_length parameter interval length tolerance 
-/// @param max_iter maximum iteration times
-/// @return bisection parameter
+/*******************************************************************************************/
 double IntervalBisection(const Grid &grid, const Spline2d &spline, const ParaInterval &interval, MultiIndex cellindex, Normal normal, double physical_tol, double para_tol, int max_iter = 100)
 {
     //parameters of curve
@@ -195,9 +183,23 @@ double IntervalBisection(const Grid &grid, const Spline2d &spline, const ParaInt
     double mid_dis = grid.SignDistance(cellindex, normal, mid_point);
     double left_dis = grid.SignDistance(cellindex, normal, left_end);
     double right_dis = grid.SignDistance(cellindex, normal, right_end);
-
-    while (std::fabs(mid_dis) >= physical_tol && (b - a) > para_tol && max_iter-- > 0)
+    if(left_dis * right_dis > 0)
     {
+        std::cerr << "The interval is not cut by the curve" << std::endl;
+        return -1;
+    }
+    if(left_dis==0)
+    {
+        return a;
+    }
+    if (right_dis == 0)
+    {
+        return b;
+    }
+    while (std::fabs(mid_dis) >= physical_tol && (b - a) > para_tol && max_iter-- > 0)
+    {   
+        assert(left_dis * right_dis <= 0 || right_dis * mid_dis <= 0);
+
         if (left_dis * mid_dis < 0)
         {
             b = mid;
@@ -206,9 +208,16 @@ double IntervalBisection(const Grid &grid, const Spline2d &spline, const ParaInt
         {
             a = mid;
         }
+
         mid = (a + b) / 2;
+
         mid_point = Vec{spline(mid)};
+        left_end = Vec{spline(a)};
+        right_end = Vec{spline(b)};
+
         mid_dis = grid.SignDistance(cellindex, normal, mid_point);
+        left_dis = grid.SignDistance(cellindex, normal, left_end);
+        right_dis = grid.SignDistance(cellindex, normal, right_end);
     }
     return mid;
 }

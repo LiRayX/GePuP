@@ -99,5 +99,5 @@ void plotIntersectionPoints(const Spline2d &spline, const CurveBelonging &curveB
         x.push_back(point[0]);
         y.push_back(point[1]);
     }
-    plt::scatter(x, y, 3.0, {{"color", "blue"}});
+    plt::scatter(x, y, 10.0, {{"color", "purple"}, {"marker", "x"}});
 }

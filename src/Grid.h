@@ -167,7 +167,7 @@ double Grid::SignDistance(MultiIndex index, Normal normal, const Vec &point) con
   else
   {
     assert(std::fabs(point[1] - cell_center[1]) < 3/2.0 * h);
-    double diff = std::fabs(point[0] - (cell_center[0] + normal[0] / 2.0 * h));
+    double diff = point[0] - (cell_center[0] + normal[0] / 2.0 * h);
     // return (std::fabs(diff) >= tol) ? diff : 0;
     return diff;
   }

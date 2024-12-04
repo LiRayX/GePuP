@@ -1,6 +1,6 @@
 ## 0. Envirment
 
-This package can be found in lib/
+The following packages can be found in lib/
 
 + Eigen
 + unsupported/Eigen/Splines
