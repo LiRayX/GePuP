@@ -36,6 +36,11 @@ int main()
     {
         endPoints.push_back(i);
     }
+    VecList endPointsVec;
+    for(const auto& index : endPoints)
+    {
+        endPointsVec.push_back(controlPoints[index]);
+    }
     BoundaryCurve curve(controlPoints, endPoints);
     SplineList splines = curve.GetSplines();
     // Spline2d spline  = splines[1];
@@ -113,7 +118,7 @@ int main()
     // //绘制交点
     // plotIntersectionPoints(spline, curveBelonging);
     //显示图像
-    plt::save("piecewise_spline.svg");
+    plt::save("whole_curve.svg");
 
 
 

@@ -103,7 +103,7 @@ void plotIntersectionPoints(const Spline2d &spline, const CurveBelonging &curveB
     plt::scatter(x, y, 10.0, {{"color", "purple"}, {"marker", "x"}});
 }
 
-void plotWholeBoundaryCurve(const BoundaryCurve &curve)
+void plotWholeBoundaryCurvePieceWisely(const BoundaryCurve &curve)
 {   //plot control points
     const VecList &controlPoints = curve.GetControlPoints();
     plotControlPoints(controlPoints);
@@ -113,6 +113,21 @@ void plotWholeBoundaryCurve(const BoundaryCurve &curve)
     for(size_t i = 0; i < splines.size(); i++)
     {
         plotPieceWiseSpline(splines[i], PieceWiseBelongingIfo[i], 0.01);
+        plotIntersectionPoints(splines[i], PieceWiseBelongingIfo[i]);
+    }
+}
+
+void plotWholeBoundaryCurve(const BoundaryCurve &curve)
+{   //plot control points
+    const VecList &controlPoints = curve.GetControlPoints();
+    plotControlPoints(controlPoints);
+    //plot splines
+    const SplineList &splines = curve.GetSplines();
+    plotSplineList(splines, 0, 1, 0.01);
+    //plot intersection points
+    const PieceWiseBelongingList &PieceWiseBelongingIfo = curve.getPieceWiseBelongingIfo();
+    for(size_t i = 0; i < splines.size(); i++)
+    {
         plotIntersectionPoints(splines[i], PieceWiseBelongingIfo[i]);
     }
 }

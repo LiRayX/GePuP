@@ -29,13 +29,13 @@ public:
     /// @brief Get EndPoints
     const std::vector<int> &GetEndPoints() const 
     { return IndexEndPoints; }
-    /// @brief Get piece-wise B-spline
+    /// @brief Get Segmented B-spline
     const SplineList &GetSplines() const 
     { return Splines; }
     /// @brief Fit curve globally, a B-spline from startpoint to finalpoint
     /// @return Single B-Spline
     Spline2d GlobalFit() const;
-    /// @brief Fit curve Piece-Wise, sequence B-splines according to IndexEndPoints
+    /// @brief Fit curve segemented, sequence B-splines according to IndexEndPoints
     void PieceWiseFit();
     
     void setPieceWiseBelongingIfo(const Grid &grid, double physical_tol, double para_tol, int max_iter);
