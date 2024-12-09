@@ -105,10 +105,10 @@ void plotIntersectionPoints(const Spline2d &spline, const CurveBelonging &curveB
 
 void plotWholeBoundaryCurvePieceWisely(const BoundaryCurve &curve)
 {   //plot control points
-    const VecList &controlPoints = curve.GetControlPoints();
+    const VecList &controlPoints = curve.getControlPoints();
     plotControlPoints(controlPoints);
     //plot splines and intersection points
-    const SplineList &splines = curve.GetSplines();
+    const SplineList &splines = curve.getSplines();
     const PieceWiseBelongingList &PieceWiseBelongingIfo = curve.getPieceWiseBelongingIfo();
     for(size_t i = 0; i < splines.size(); i++)
     {
@@ -119,10 +119,10 @@ void plotWholeBoundaryCurvePieceWisely(const BoundaryCurve &curve)
 
 void plotWholeBoundaryCurve(const BoundaryCurve &curve)
 {   //plot control points
-    const VecList &controlPoints = curve.GetControlPoints();
+    const VecList &controlPoints = curve.getControlPoints();
     plotControlPoints(controlPoints);
     //plot splines
-    const SplineList &splines = curve.GetSplines();
+    const SplineList &splines = curve.getSplines();
     plotSplineList(splines, 0, 1, 0.01);
     //plot intersection points
     const PieceWiseBelongingList &PieceWiseBelongingIfo = curve.getPieceWiseBelongingIfo();

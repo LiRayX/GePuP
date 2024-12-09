@@ -24,13 +24,13 @@ public:
     BoundaryCurve(const VecList& controlPoints, const std::vector<int>& endPoints)
         : ControlPoints(controlPoints), IndexEndPoints(endPoints) {PieceWiseFit();}
     /// @brief Get ControlPoints
-    VecList GetControlPoints() const 
+    VecList getControlPoints() const 
     { return ControlPoints; }
     /// @brief Get EndPoints
-    const std::vector<int> &GetEndPoints() const 
+    const std::vector<int> &getEndPoints() const 
     { return IndexEndPoints; }
     /// @brief Get Segmented B-spline
-    const SplineList &GetSplines() const 
+    const SplineList &getSplines() const 
     { return Splines; }
     /// @brief Fit curve globally, a B-spline from startpoint to finalpoint
     /// @return Single B-Spline
@@ -84,6 +84,7 @@ void BoundaryCurve::setPieceWiseBelongingIfo(const Grid &grid, double physical_t
         CurveBelonging curveBelonging;
         curveBelonging.AdaptiveCheck(grid, spline);
         curveBelonging.PieceWiseBelonging(grid, spline, physical_tol, para_tol, max_iter);
+        int n_cutcell = curveBelonging.getMultiIndices().size();
         PieceWiseBelongingIfo.push_back(curveBelonging);
     }
 }

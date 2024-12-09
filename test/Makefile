@@ -22,6 +22,12 @@ clean:
 	rm -f draw
 	rm -f $(TARGET)
 	rm -f curve
+	rm -f testBC
+	rm -f testmap
+	rm -f testSP
+	rm -f testSplines
+	rm -f testVec
+	rm -f testBisection
 
 # 伪目标
 .PHONY: all clean

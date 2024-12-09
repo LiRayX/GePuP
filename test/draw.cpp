@@ -41,7 +41,7 @@ int main()
     //边界曲线
     std::vector<int> endPoints{0, 3, 6, 9};
     BoundaryCurve curve(controlPoints, endPoints);
-    SplineList splines = curve.GetSplines();
+    SplineList splines = curve.getSplines();
 
     // 绘制网格线
     plotGrid(g);
