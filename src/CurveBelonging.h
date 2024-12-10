@@ -5,21 +5,13 @@
 #include "../lib/unsupported/Eigen/Splines"
 #include "../src/Vec.h"
 #include "../src/Grid.h"
+#include "MultiIndexSet.h"
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
 #include <functional>
 #include <iomanip>
 
-/// @brief Hash function for MultiIndex to be used in unordered_set 
-namespace std {
-    template <>
-    struct hash<MultiIndex> {
-        std::size_t operator()(const MultiIndex& k) const {
-            return std::hash<int>()(k[0]) ^ (std::hash<int>()(k[1]) << 1);
-        }
-    };
-}
 /// @brief Rename
 using Spline2d = Eigen::Spline<double, 2, 3>;
 using VecList = std::vector<Vec>;
@@ -42,11 +34,13 @@ using MultiIndexSet = std::unordered_set<MultiIndex>;
 /// @param max_iter maximum iteration times
 /// @return bisection parameter
 double IntervalBisection(const Grid &grid, const Spline2d &spline, const ParaInterval &interval, MultiIndex cellindex, Normal normal, double physical_tol, double para_tol, int max_iter);
+
+
+
 /// @brief Compute the difference of two MultiIndex to get the normal of the face
-/// @param a 
-/// @param b 
-/// @return outer normal of the face
-Normal minus(const MultiIndex& a, const MultiIndex& b);
+Normal operator-(const MultiIndex& a, const MultiIndex& b);
+/// @brief Find next cell index
+MultiIndex operator+(const MultiIndex& a, const Normal& b);
 
 /// @brief Compute the which piece of curve belonging to which cell
 class CurveBelonging
@@ -165,7 +159,7 @@ void CurveBelonging::PieceWiseBelonging(const Grid &grid, const Spline2d &spline
         MultiIndex current_cell = MultiIndices[i];
         MultiIndex next_cell = MultiIndices[i+1];
         //The adjacent cells tell the direction of the curve
-        Normal normal = minus(next_cell, current_cell);
+        Normal normal = next_cell - current_cell;
         ParaInterval interval = ParaIntervals[i];
         double bisection_result = IntervalBisection(grid, spline, interval, current_cell, normal, physical_tol, para_tol, max_iter);
         ParaIntervals[i].second = bisection_result;
@@ -241,7 +235,17 @@ double IntervalBisection(const Grid &grid, const Spline2d &spline, const ParaInt
     return mid;
 }
 
-Normal minus(const MultiIndex& a, const MultiIndex& b)
+// Normal minus(const MultiIndex& a, const MultiIndex& b)
+// {
+//     return {a[0] - b[0], a[1] - b[1]};
+// }
+
+Normal operator-(const MultiIndex& a, const MultiIndex& b)
 {
     return {a[0] - b[0], a[1] - b[1]};
+}
+
+MultiIndex operator+(const MultiIndex& a, const Normal& b)
+{
+    return {a[0] + b[0], a[1] + b[1]};
 }

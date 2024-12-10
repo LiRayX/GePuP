@@ -59,26 +59,52 @@ int main()
     cellClassifier.LocateCutCells(g, curve);
     const MultiIndexSet& cutCells = cellClassifier.getCutCells();
     const CutCellMap& cutCellInfo = cellClassifier.getCutCellInfo();
+
+    cellClassifier.LocateAliveCells(g);
+    const MultiIndexSet& aliveCells = cellClassifier.getAliveCells();
+    const MultiIndexSet& sideCells = cellClassifier.getSideCells();
+    const MultiIndexSet& edgeCells = cellClassifier.getEdgeCells();
+    const MultiIndexSet& coreCells = cellClassifier.getCoreCells();
+    std::cout << "AliveCells: " << std::endl;
+    for(const auto& index : aliveCells)
+    {
+        std::cout << index[0] << " " << index[1] << std::endl;
+    }
+    std::cout << "SideCells: " << std::endl;
+    for(const auto& index : sideCells)
+    {
+        std::cout << index[0] << " " << index[1] << std::endl;
+    }
+    std::cout << "EdgeCells: " << std::endl;
+    for(const auto& index : edgeCells)
+    {
+        std::cout << index[0] << " " << index[1] << std::endl;
+    }
+    std::cout << "CoreCells: " << std::endl;
+    for(const auto& index : coreCells)
+    {
+        std::cout << index[0] << " " << index[1] << std::endl;
+    }
     std::cout << "CutCells: " << std::endl;
     for(const auto& index : cutCells)
     {
         std::cout << index[0] << " " << index[1] << std::endl;
     }
-    std::cout << "CutCellInfo: " << std::endl;
-    for(const auto& info : cutCellInfo)
-    {
-        std::cout << "Index: " << info.first[0] << " " << info.first[1] << std::endl;
-        std::cout << "IndexSpline: " << std::endl;
-        for(const auto& index : info.second.index_spline)
-        {
-            std::cout << index << std::endl;
-        }
-        std::cout << "ParaInterval: " << std::endl;
-        for(const auto& interval : info.second.parainterval)
-        {
-            std::cout << "[" << interval.first << " ," << interval.second << "]" << std::endl;
-        }
-    }
+    // std::cout << "CutCellInfo: " << std::endl;
+    // for(const auto& info : cutCellInfo)
+    // {
+    //     std::cout << "Index: " << info.first[0] << " " << info.first[1] << std::endl;
+    //     std::cout << "IndexSpline: " << std::endl;
+    //     for(const auto& index : info.second.index_spline)
+    //     {
+    //         std::cout << index << std::endl;
+    //     }
+    //     std::cout << "ParaInterval: " << std::endl;
+    //     for(const auto& interval : info.second.parainterval)
+    //     {
+    //         std::cout << "[" << interval.first << " ," << interval.second << "]" << std::endl;
+    //     }
+    // }
 
 
 

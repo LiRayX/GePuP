@@ -13,8 +13,11 @@ using VecList = std::vector<Vec>;
 using Spline2d = Eigen::Spline<double, 2, 3>;
 using SplineList = std::vector<Spline2d>;
 using PieceWiseBelongingList = std::vector<CurveBelonging>;
-
-
+/// @brief Get the outer normal of the curve at the parameter u
+/// @param spline 
+/// @param u 
+/// @return 
+Vec getNormal(const Spline2d &spline, double u);
 /// @brief Using segement B-spline to represent boundary curve
 class BoundaryCurve
 {
@@ -79,7 +82,7 @@ void BoundaryCurve::PieceWiseFit()
 }
 void BoundaryCurve::setPieceWiseBelongingIfo(const Grid &grid, double physical_tol, double para_tol, int max_iter)
 {
-    for(const auto& spline : Splines)
+    for(const auto &spline : Splines)
     {
         CurveBelonging curveBelonging;
         curveBelonging.AdaptiveCheck(grid, spline);
@@ -87,4 +90,10 @@ void BoundaryCurve::setPieceWiseBelongingIfo(const Grid &grid, double physical_t
         int n_cutcell = curveBelonging.getMultiIndices().size();
         PieceWiseBelongingIfo.push_back(curveBelonging);
     }
+}
+
+Vec getNormal(const Spline2d &spline, double u)
+{
+    Vec derivative{spline.derivatives(u, 1).col(1)};
+    return outernormal(derivative);
 }

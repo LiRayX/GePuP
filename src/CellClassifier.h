@@ -21,6 +21,11 @@ using MultiIndexSet = std::unordered_set<MultiIndex>;
 using VecList = std::vector<Vec>;
 using CutCellMap = std::unordered_map<MultiIndex, CutCellInfo>;
 
+std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index);
+
+// /// @brief Compute the normal_average of the curve in the cell
+// Vec getNormal_CutCell(const MultiIndex &index, const CutCellInfo &info, const BoundaryCurve &boundarycurve, double step);
+// Vec getNormal_Sum(const Spline2d &spline, const ParaInterval &interval, double step);
 
 /// @brief Classify the cells in the grid into different categories
 class CellClassifier
@@ -37,10 +42,18 @@ public:
     const MultiIndexSet& getEdgeCells() const { return EdgeCells; }
     const MultiIndexSet& getCoreCells() const { return CoreCells; }
 
+    void LocateDeadCells(const Grid &grid);
+    void LocateAliveCells(const Grid &grid);
     void LocateCutCells(const Grid &grid, const BoundaryCurve &boundary);
-    void LocateSideCells(const Grid &grid, const BoundaryCurve &boundary);
-    void LocateEdgeCells(const Grid &grid, const BoundaryCurve &boundary);
-    void LocateCoreCells(const Grid &grid, const BoundaryCurve &boundary);
+
+    void LocateSideCells(const Grid &grid);
+    bool isSideCell(const MultiIndex &index);
+
+    void LocateEdgeCells(const Grid &grid);
+    bool isEdgeCell(const MultiIndex &index);
+
+    void LocateCoreCells(const Grid &grid);
+    bool isCoreCell(const MultiIndex &index);
 protected:
     MultiIndexSet DeadCells;
     MultiIndexSet AliveCells;
@@ -52,6 +65,37 @@ protected:
     MultiIndexSet EdgeCells;
     MultiIndexSet CoreCells;
 };
+
+// /// @brief This function need LocateCutCells to be called first
+// /// @param grid 
+// /// @param boundaryCurve 
+// void CellClassifier::LocateAliveCells(const Grid &grid)
+// {
+//     RangeMap rangeMap = getRangeOfCutCells(CutCells);
+//     Eigen::MatrixXi indexMatrix = convertToEigenMatrix(CutCells, grid);
+//     for(const auto &map : rangeMap)
+//     {
+//         int i = map.first;
+//         int j_min = map.second.first;
+//         int j_max = map.second.second;
+//         for(int j = j_min; j <= j_max; j++)
+//         {
+//             AliveCells.insert({i, j});
+//             if(indexMatrix(i, j-1) == 0 || indexMatrix(i, j+1) == 0 || indexMatrix(i-1, j) == 0 || indexMatrix(i+1, j) == 0)
+//             {
+//                 SideCells.insert({i, j});
+//             }
+//         }
+//     }
+// }
+
+void CellClassifier::LocateAliveCells(const Grid &grid)
+{
+    this->LocateSideCells(grid);
+    this->LocateEdgeCells(grid);
+    this->LocateCoreCells(grid);
+}
+
 
 void CellClassifier::LocateCutCells(const Grid &grid, const BoundaryCurve &boundaryCurve)
 {
@@ -78,6 +122,168 @@ void CellClassifier::LocateCutCells(const Grid &grid, const BoundaryCurve &bound
         }
     }
 }
+
+void CellClassifier::LocateSideCells(const Grid &grid)
+{
+    RangeMap rangeMap = getRangeOfCutCells(CutCells);
+    for(const auto &map : rangeMap)
+    {
+        int i = map.first;
+        int j_min = map.second.first;
+        int j_max = map.second.second;
+        for(int j = j_min+1; j <= j_max-1; j++)
+        {
+            if(this->isSideCell({i, j}))
+            {
+                SideCells.insert({i, j});
+            }
+        }
+    }
+}
+
+void CellClassifier::LocateEdgeCells(const Grid &grid)
+{
+    RangeMap rangeMap = getRangeOfCutCells(CutCells);
+    for(const auto &map : rangeMap)
+    {
+        int i = map.first;
+        int j_min = map.second.first;
+        int j_max = map.second.second;
+        for(int j = j_min+2; j <= j_max-2; j++)
+        {
+            if(this->isEdgeCell({i, j}))
+            {
+                EdgeCells.insert({i, j});
+            }
+        }
+    }
+}
+
+
+void CellClassifier::LocateCoreCells(const Grid &grid)
+{
+    RangeMap rangeMap = getRangeOfCutCells(CutCells);
+    for(const auto &map : rangeMap)
+    {
+        int i = map.first;
+        int j_min = map.second.first;
+        int j_max = map.second.second;
+        for(int j = j_min+3; j <= j_max-3; j++)
+        {
+            if(this->isCoreCell({i, j}))
+            {
+                CoreCells.insert({i, j});
+            }
+        }
+    }
+}
+
+
+
+
+
+
+std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index)
+{
+    std::vector<MultiIndex> neighbour;
+    neighbour.push_back({index[0], index[1] + 1});
+    neighbour.push_back({index[0], index[1] - 1});
+    neighbour.push_back({index[0] + 1, index[1]});
+    neighbour.push_back({index[0] - 1, index[1]});
+    return neighbour;
+}
+/// @brief Not cut cell, and at least one neighbour is a cut cell
+/// @param index 
+/// @return 
+bool CellClassifier::isSideCell(const MultiIndex &index)
+{
+    //If the cell is a cut cell, then it is not a side cell
+    if(CutCells.find(index) != CutCells.end())
+    {
+        return false;
+    }
+    std::vector<MultiIndex> neighbour = VonNeumannNeighbour(index);
+    for(const auto &neigh : neighbour)
+    {
+        if(CutCells.find(neigh) != CutCells.end())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+/// @brief Not a cut cell or a side cell, and any neighbours is a side cell 
+/// @param index 
+/// @return 
+bool CellClassifier::isEdgeCell(const MultiIndex &index)
+{
+    //If the cell is a side cell, then it is not an edge cell
+    if(CutCells.find(index) != CutCells.end() || SideCells.find(index) != SideCells.end())
+    {
+        return false;
+    }
+    //If a neighbour of the cell is a side cell, and none of the neighbour is a cut cell, then the cell is an edge cell
+    std::vector<MultiIndex> neighbour = VonNeumannNeighbour(index);
+    for(const auto &neigh : neighbour)
+    {
+        if(SideCells.find(neigh) != SideCells.end())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CellClassifier::isCoreCell(const MultiIndex &index)
+{
+    //If the cell is a side cell, then it is not an edge cell
+    if(CutCells.find(index) != CutCells.end() || SideCells.find(index) != SideCells.end() || EdgeCells.find(index) != EdgeCells.end())
+    {
+        return false;
+    }
+    else 
+    {
+        return true;
+    }
+}
+
+
+
+
+
+
+// Vec getNormal_CutCell(const MultiIndex &index, const CutCellInfo &info, const BoundaryCurve &boundarycurve, double step)
+// {
+//     Vec normal{0.0, 0.0};
+
+//     const std::vector<int> &index_spline = info.index_spline;
+//     const std::vector<ParaInterval> &parainterval = info.parainterval;
+//     const SplineList &splines = boundarycurve.getSplines();
+
+//     int n_segment = index_spline.size();
+
+//     for(int i = 0; i < n_segment; i++)
+//     {
+//         int index = index_spline[i];
+//         const Spline2d &spline = splines[index];
+//         const ParaInterval &interval = parainterval[i];
+//         Vec current_normal = getNormal_Sum(spline, interval, step);
+//         normal = normal + current_normal;
+//     }
+// }
+
+// Vec getNormal_Sum(const Spline2d &spline, const ParaInterval &interval, double step)
+// {
+//     Vec normal{0.0, 0.0};
+//     double start = interval.first;
+//     double end = interval.second;
+//     for(double u = start; u < end; u += step)
+//     {
+//        Vec current_normal = getNormal(spline, u);
+//        normal = normal + current_normal;
+//     }
+//     return normal;
+// }
 
 
 
