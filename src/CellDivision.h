@@ -20,18 +20,15 @@ class CellDivision
 {
 public:
     void LocateDeadCells(const Grid &grid);
-    void LocateAliveCells(const Grid &grid);
     void LocateAllCells(const Grid &grid, const CyclicCurve &boundaryCurve);
     void LocateCutCells(const Grid &grid, const CyclicCurve &boundaryCurve);
 
 
     void LocateSideCells(const Grid &grid);
-
-
-    void LocateEdgeCells(const Grid &grid);
+    // void LocateEdgeCells(const Grid &grid);
 
     void LocateCoreCells(const Grid &grid);
-
+    bool isCoreCell(const MultiIndex &index, const Grid &grid);
 
     const MultiIndexSet& getDeadCells() const { return DeadCells; }
     const MultiIndexSet& getAliveCells() const { return AliveCells; }
@@ -39,6 +36,7 @@ public:
     const MultiIndexSet& getSideCells() const { return SideCells; }
     const MultiIndexSet& getEdgeCells() const { return EdgeCells; }
     const MultiIndexSet& getCoreCells() const { return CoreCells; }
+
 
     const CutCellMapping& getCutCellInfo() const { return CutCellInfo; }
 protected:
@@ -57,7 +55,7 @@ void CellDivision::LocateAllCells(const Grid &grid, const CyclicCurve &boundaryC
     this->LocateCutCells(grid, boundaryCurve);
     this->LocateDeadCells(grid);
     this->LocateSideCells(grid);
-    this->LocateEdgeCells(grid);
+    // this->LocateEdgeCells(grid);
     this->LocateCoreCells(grid);
 }
 
@@ -111,34 +109,61 @@ void CellDivision::LocateSideCells(const Grid &grid)
     }
 }
 
-void CellDivision::LocateEdgeCells(const Grid &grid)
-{
-    for (const auto& index : SideCells)
-    {
-        std::vector<MultiIndex> neighbours = VonNeumannNeighbour(index, grid);
-        for (const auto& neighbour : neighbours)
-        {
-            //If not a cut cell or a dead cell or a side cell
-            if (CutCells.find(neighbour) == CutCells.end() && DeadCells.find(neighbour) == DeadCells.end() && SideCells.find(neighbour) == SideCells.end())
-            {
-                EdgeCells.insert(neighbour);
-            }
-        }
-    }
-}
-
+/// @brief Locate the core cells and edge cells
 void CellDivision::LocateCoreCells(const Grid &grid)
 {
-    for (int i = 2; i < grid.get_size()[0]-2; i++)
+    loop_inner_cell_2(grid, i, j)
     {
-        for (int j = 2; j < grid.get_size()[1]-2; j++)
+        MultiIndex index{i, j};
+        //Excluding cut cells, dead cells, side cells.
+        if (CutCells.find(index) == CutCells.end() && DeadCells.find(index) == DeadCells.end() && SideCells.find(index) == SideCells.end())
         {
-            MultiIndex index{i, j};
-            if (CutCells.find(index) == CutCells.end() && DeadCells.find(index) == DeadCells.end() && SideCells.find(index) == SideCells.end() && EdgeCells.find(index) == EdgeCells.end())
+            if (isCoreCell(index, grid))
             {
                 CoreCells.insert(index);
             }
+            else
+            {
+                EdgeCells.insert(index);
+            }
         }
     }
-
 }
+/// @brief True means core cell, False means Edge cell
+/// @param index 
+/// @param grid 
+/// @return bool
+bool CellDivision::isCoreCell(const MultiIndex &index, const Grid &grid)
+{
+    bool isCore = true;
+    std::vector<MultiIndex> neighbours = ExtendedVonNeumannNeighbour(index, grid);
+    for (const auto& neighbour : neighbours)
+    {
+        if (CutCells.find(neighbour) != CutCells.end() || DeadCells.find(neighbour) != DeadCells.end())
+        {
+            isCore = false;
+            break;
+        }
+    }
+    return isCore;
+}
+
+
+// /******************************************************************************* */
+// /// @brief Dropped
+// /// @param grid 
+// void CellDivision::LocateEdgeCells(const Grid &grid)
+// {
+//     for (const auto& index : SideCells)
+//     {
+//         std::vector<MultiIndex> neighbours = VonNeumannNeighbour(index, grid);
+//         for (const auto& neighbour : neighbours)
+//         {
+//             //If not a cut cell or a dead cell or a side cell
+//             if (CutCells.find(neighbour) == CutCells.end() && DeadCells.find(neighbour) == DeadCells.end() && SideCells.find(neighbour) == SideCells.end())
+//             {
+//                 EdgeCells.insert(neighbour);
+//             }
+//         }
+//     }
+// }

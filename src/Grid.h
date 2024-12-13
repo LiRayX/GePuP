@@ -69,6 +69,12 @@ protected:
 #define loop_cell_2(gd, i0, i1)                 \
   for (int i1 = 0; i1 < gd.get_size()[1]; i1++) \
     for (int i0 = 0; i0 < gd.get_size()[0]; i0++)
+
+#define loop_inner_cell_2(gd, i0, i1)             \
+  for (int i1 = 2; i1 < gd.get_size()[1]-2; i1++) \
+    for (int i0 = 2; i0 < gd.get_size()[0]-2; i0++)
+
+
 Grid::Grid() = default;
 
 Grid::Grid(const Vec &_lo, const Vec &_hi, double _h) : corner{_lo, _hi}, h(_h)

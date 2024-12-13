@@ -18,7 +18,7 @@ MultiIndex operator+(const MultiIndex& a, const Normal& b);
 /// @brief VonNeumann Neighbour
 std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index);
 std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index, const Grid &grid);
-
+std::vector<MultiIndex> ExtendedVonNeumannNeighbour(const MultiIndex &index, const Grid &grid);
 /// @brief Binary Operator of sets.
 MultiIndexSet unionSets(const MultiIndexSet& set1, const MultiIndexSet& set2);
 MultiIndexSet differenceSets(const MultiIndexSet& set1, const MultiIndexSet& set2); 
@@ -47,39 +47,46 @@ MultiIndex operator+(const MultiIndex& a, const Normal& b)
 }
 std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index)
 {
-    std::vector<MultiIndex> neighbour;   
-    neighbour.push_back({index[0], index[1] + 1});
-    neighbour.push_back({index[0], index[1] - 1});
-    neighbour.push_back({index[0] + 1, index[1]});
-    neighbour.push_back({index[0] - 1, index[1]});
+    std::vector<MultiIndex> neighbour; 
+    std::vector<Normal> normals = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};  
+    for (const auto& normal : normals) 
+    {
+        neighbour.push_back(index + normal);
+    }
     return neighbour;
 }
 
 std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index, const Grid &grid)
 {
     std::vector<MultiIndex> neighbour; 
-    if (grid.isIndexValid({index[0], index[1] + 1})) 
+    std::vector<Normal> normals = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
+    for (const auto& normal : normals) 
     {
-        neighbour.push_back({index[0], index[1] + 1});
+        MultiIndex neighbourIndex = index + normal;
+        if (grid.isIndexValid(neighbourIndex)) 
+        {
+            neighbour.push_back(neighbourIndex);
+        }
     }
-    if (grid.isIndexValid({index[0], index[1] - 1})) 
-    {
-        neighbour.push_back({index[0], index[1] - 1});
-    }
-    if (grid.isIndexValid({index[0] + 1, index[1]})) 
-    {
-        neighbour.push_back({index[0] + 1, index[1]});
-    }
-    if (grid.isIndexValid({index[0] - 1, index[1]})) 
-    {
-        neighbour.push_back({index[0] - 1, index[1]});
-    }
-    // neighbour.push_back({index[0], index[1] + 1});
-    // neighbour.push_back({index[0], index[1] - 1});
-    // neighbour.push_back({index[0] + 1, index[1]});
-    // neighbour.push_back({index[0] - 1, index[1]});
     return neighbour;
 }
+std::vector<MultiIndex> ExtendedVonNeumannNeighbour(const MultiIndex &index, const Grid &grid)
+{
+    std::vector<MultiIndex> neighbour; 
+    std::vector<Normal> normals = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {0, 2}, {0, -2}, {2, 0}, {-2, 0}};
+    for (const auto& normal : normals) 
+    {
+        MultiIndex neighbourIndex = index + normal;
+        if (grid.isIndexValid(neighbourIndex)) 
+        {
+            neighbour.push_back(neighbourIndex);
+        }
+    }
+    return neighbour;
+}
+
+
 
 
 // Union of two sets
