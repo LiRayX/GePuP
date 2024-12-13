@@ -65,6 +65,7 @@
         "iomanip": "cpp",
         "cinttypes": "cpp",
         "*.inc": "cpp",
-        "core": "cpp"
+        "core": "cpp",
+        "mprealsupport": "cpp"
     }
 }

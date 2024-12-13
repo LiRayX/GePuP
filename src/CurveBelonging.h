@@ -37,10 +37,7 @@ double IntervalBisection(const Grid &grid, const Spline2d &spline, const ParaInt
 
 
 
-/// @brief Compute the difference of two MultiIndex to get the normal of the face
-Normal operator-(const MultiIndex& a, const MultiIndex& b);
-/// @brief Find next cell index
-MultiIndex operator+(const MultiIndex& a, const Normal& b);
+
 
 /// @brief Compute the which piece of curve belonging to which cell
 class CurveBelonging
@@ -240,12 +237,3 @@ double IntervalBisection(const Grid &grid, const Spline2d &spline, const ParaInt
 //     return {a[0] - b[0], a[1] - b[1]};
 // }
 
-Normal operator-(const MultiIndex& a, const MultiIndex& b)
-{
-    return {a[0] - b[0], a[1] - b[1]};
-}
-
-MultiIndex operator+(const MultiIndex& a, const Normal& b)
-{
-    return {a[0] + b[0], a[1] + b[1]};
-}

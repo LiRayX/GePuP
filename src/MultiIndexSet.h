@@ -10,6 +10,18 @@ using MultiIndex = std::array<int, 2>;
 using MultiIndexSet = std::unordered_set<MultiIndex>;
 using RangeMap = std::unordered_map<int, std::pair<int, int>>;
 
+
+/// @brief Compute the difference of two MultiIndex to get the normal of the face
+Normal operator-(const MultiIndex& a, const MultiIndex& b);
+/// @brief Find next cell index
+MultiIndex operator+(const MultiIndex& a, const Normal& b);
+/// @brief VonNeumann Neighbour
+std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index);
+std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index, const Grid &grid);
+
+/// @brief Binary Operator of sets.
+MultiIndexSet unionSets(const MultiIndexSet& set1, const MultiIndexSet& set2);
+MultiIndexSet differenceSets(const MultiIndexSet& set1, const MultiIndexSet& set2); 
 /// @brief Hash function for MultiIndex to be used in unordered_set 
 namespace std 
 {
@@ -22,6 +34,78 @@ namespace std
         }
     };
 }
+
+
+Normal operator-(const MultiIndex& a, const MultiIndex& b)
+{
+    return {a[0] - b[0], a[1] - b[1]};
+}
+
+MultiIndex operator+(const MultiIndex& a, const Normal& b)
+{
+    return {a[0] + b[0], a[1] + b[1]};
+}
+std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index)
+{
+    std::vector<MultiIndex> neighbour;   
+    neighbour.push_back({index[0], index[1] + 1});
+    neighbour.push_back({index[0], index[1] - 1});
+    neighbour.push_back({index[0] + 1, index[1]});
+    neighbour.push_back({index[0] - 1, index[1]});
+    return neighbour;
+}
+
+std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index, const Grid &grid)
+{
+    std::vector<MultiIndex> neighbour; 
+    if (grid.isIndexValid({index[0], index[1] + 1})) 
+    {
+        neighbour.push_back({index[0], index[1] + 1});
+    }
+    if (grid.isIndexValid({index[0], index[1] - 1})) 
+    {
+        neighbour.push_back({index[0], index[1] - 1});
+    }
+    if (grid.isIndexValid({index[0] + 1, index[1]})) 
+    {
+        neighbour.push_back({index[0] + 1, index[1]});
+    }
+    if (grid.isIndexValid({index[0] - 1, index[1]})) 
+    {
+        neighbour.push_back({index[0] - 1, index[1]});
+    }
+    // neighbour.push_back({index[0], index[1] + 1});
+    // neighbour.push_back({index[0], index[1] - 1});
+    // neighbour.push_back({index[0] + 1, index[1]});
+    // neighbour.push_back({index[0] - 1, index[1]});
+    return neighbour;
+}
+
+
+// Union of two sets
+MultiIndexSet unionSets(const MultiIndexSet& set1, const MultiIndexSet& set2) 
+{
+    MultiIndexSet result = set1;
+    result.insert(set2.begin(), set2.end());
+    return result;
+}
+
+// Differ of two sets
+MultiIndexSet differenceSets(const MultiIndexSet& set1, const MultiIndexSet& set2) 
+{
+    MultiIndexSet result;
+    for (const auto& mi : set1) {
+        if (set2.find(mi) == set2.end()) {
+            result.insert(mi);
+        }
+    }
+    return result;
+}
+
+
+
+
+
 /// @brief Get the range of the first index of the MultiIndexSet
 /// @param CutCells 
 /// @param grid 
@@ -112,3 +196,5 @@ std::pair<int, int> getRangeOfSecondIndex(const MultiIndexSet& CutCells, int fir
     }
     return {minIndex, maxIndex};
 }
+
+

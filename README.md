@@ -8,6 +8,8 @@ The following packages can be found in lib/
 
 ## 1. Function of Each File
 
+### Basis
+
 ####  Vec.h
 
 Class of point/vector in R^2.
@@ -15,6 +17,29 @@ Class of point/vector in R^2.
 #### Grid.h
 
 Structured Grid.
+
+#### MultiIndexSet.h
+
+Operations on unordered_set of MultiIndex.
+
+
+#### ButcherTable.h
+
+ButcherTable of ClassicalRK4 and ARK436L2SA
+
+#### RungeKutta.h
+
+Time integral for the space semi-discrete system.
+
+#### numlib.h
+
+Numerical integral
+
+#### Plot.h
+
+Plot by matplotlib-cpp.
+
+### Case 1: Free Boundary 
 
 #### BoundaryCurve.h
 
@@ -28,14 +53,20 @@ For each spline, calculating which part of the curve belongs to which cell, inte
 
 Classifying all cells to dead cell, alive cell (cut cell, side cell, edge cell ,core cell).
 
-#### ButcherTable.h
 
-ButcherTable of ClassicalRK4 and ARK436L2SA
+### Case 2: Free Fall of A Ball
 
-#### RungeKutta.h
+#### CyclicCurve.h
 
-Time integral for the space semi-discrete system.
+Describe the ball in 2D.
 
-#### numlib.h
+#### CellDivision.h
 
- Numerical integral
+Dividing the cell into different type, according to the releative position to the ball.
+
+
+
+
+
+
+

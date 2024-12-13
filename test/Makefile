@@ -16,7 +16,8 @@ draw: draw.cpp
 	$(CXX) draw.cpp -I/usr/include/python3.10 -I~/.local/lib/python3.10/site-packages/numpy/core/include -lpython3.10 -o draw
 curve: curve.cpp
 	$(CXX) curve.cpp -I/usr/include/python3.10 -I~/.local/lib/python3.10/site-packages/numpy/core/include -lpython3.10 -o curve
-
+cycle: cycle.cpp
+	$(CXX) cycle.cpp -I/usr/include/python3.10 -I~/.local/lib/python3.10/site-packages/numpy/core/include -lpython3.10 -o cycle
 # 清理生成的文件
 clean:
 	rm -f draw
@@ -28,6 +29,7 @@ clean:
 	rm -f testSplines
 	rm -f testVec
 	rm -f testBisection
+	rm -f cycle
 
 # 伪目标
 .PHONY: all clean

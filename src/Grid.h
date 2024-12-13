@@ -22,7 +22,6 @@ public:
   Vec hi() const;
   double get_h() const;
   const int *get_size() const;
-
   // return the index of cell, counting from left-down, starting from 0
   int MultiToSingle(int i, int j) const;
   MultiIndex SingleToMulti(int index) const;
@@ -31,13 +30,20 @@ public:
   bool OnFace(int i, int j, int x, int y, const Vec &point, double tol) const;
   bool OnFace(MultiIndex index, Normal normal, const Vec &point, double tol) const;
 
-  //
+  //Sign distance from the point to the face
   double SignDistance(MultiIndex index, Normal normal,const Vec &point) const;
+  double Distance(MultiIndex index, Normal normal,const Vec &point) const;
+  //
+  Normal getDirection(MultiIndex index, const Vec &point, double tol) const;
 
-
+  //Return the center of the cell
   Vec operator()(int i, int j) const;
   // Based on the left-down coord(i,j)
   Vec center(int i, int j) const;
+
+  bool isIndexValid(int i, int j) const;
+  bool isIndexValid(MultiIndex index) const;
+
 
   friend std::ostream &operator<<(std::ostream &os, const Grid &g);
 
@@ -101,6 +107,7 @@ Vec Grid::hi() const { return corner[1]; }
 double Grid::get_h() const { return h; }
 
 const int *Grid::get_size() const { return size; }
+
 
 int Grid::MultiToSingle(int i, int j) const
 {
@@ -173,6 +180,38 @@ double Grid::SignDistance(MultiIndex index, Normal normal, const Vec &point) con
   }
 }
 
+double Grid::Distance(MultiIndex index, Normal normal, const Vec &point) const
+{
+  return std::fabs(SignDistance(index, normal, point));
+}
+
+Normal Grid::getDirection(MultiIndex index, const Vec &point, double tol) const
+{
+  Normal normal;
+  if (Distance(index, {0, 1}, point) < tol)
+  {
+    normal = {0, 1};
+  }
+  else if (Distance(index, {0, -1}, point) < tol)
+  {
+    normal = {0, -1};
+  }
+  else if (Distance(index, {1, 0}, point) < tol)
+  {
+    normal = {1, 0};
+  }
+  else if (Distance(index, {-1, 0}, point) < tol)
+  {
+    normal = {-1, 0};
+  }
+  else
+  {
+    normal = {0, 0};
+  }
+  return normal;
+}
+
+
 std::ostream &operator<<(std::ostream &os, const Grid &g)
 {
   for (int i1 = g.size[1]; i1 >= 0; i1--)
@@ -215,6 +254,15 @@ MultiIndex Grid::LocateCell(const Vec &pos) const
   }
   return index;
 }
+
+  bool Grid::isIndexValid(int i, int j) const
+  {
+    return i >= 0 && i < size[0] && j >= 0 && j < size[1];
+  }
+  bool Grid::isIndexValid(MultiIndex index) const
+  {
+    return isIndexValid(index[0], index[1]);
+  }
 
 Grid Grid::refine() const { return Grid(lo(), hi(), h / 2); }
 

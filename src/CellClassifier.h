@@ -17,11 +17,10 @@ struct CutCellInfo
     std::vector<ParaInterval> parainterval;
 };
 
-using MultiIndexSet = std::unordered_set<MultiIndex>;
+
 using VecList = std::vector<Vec>;
 using CutCellMap = std::unordered_map<MultiIndex, CutCellInfo>;
 
-std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index);
 
 // /// @brief Compute the normal_average of the curve in the cell
 // Vec getNormal_CutCell(const MultiIndex &index, const CutCellInfo &info, const BoundaryCurve &boundarycurve, double step);
@@ -183,15 +182,7 @@ void CellClassifier::LocateCoreCells(const Grid &grid)
 
 
 
-std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index)
-{
-    std::vector<MultiIndex> neighbour;
-    neighbour.push_back({index[0], index[1] + 1});
-    neighbour.push_back({index[0], index[1] - 1});
-    neighbour.push_back({index[0] + 1, index[1]});
-    neighbour.push_back({index[0] - 1, index[1]});
-    return neighbour;
-}
+
 /// @brief Not cut cell, and at least one neighbour is a cut cell
 /// @param index 
 /// @return 
@@ -236,7 +227,6 @@ bool CellClassifier::isEdgeCell(const MultiIndex &index)
 
 bool CellClassifier::isCoreCell(const MultiIndex &index)
 {
-    //If the cell is a side cell, then it is not an edge cell
     if(CutCells.find(index) != CutCells.end() || SideCells.find(index) != SideCells.end() || EdgeCells.find(index) != EdgeCells.end())
     {
         return false;
