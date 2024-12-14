@@ -29,6 +29,9 @@ public:
 
     void LocateCoreCells(const Grid &grid);
     bool isCoreCell(const MultiIndex &index, const Grid &grid);
+        
+    void LocateExtendedCells(const Grid &grid);
+    bool isExtendedCell(const MultiIndex &index, const Grid &grid);
 
     const MultiIndexSet& getDeadCells() const { return DeadCells; }
     const MultiIndexSet& getAliveCells() const { return AliveCells; }
@@ -36,10 +39,12 @@ public:
     const MultiIndexSet& getSideCells() const { return SideCells; }
     const MultiIndexSet& getEdgeCells() const { return EdgeCells; }
     const MultiIndexSet& getCoreCells() const { return CoreCells; }
+    const MultiIndexSet& getExtendedCells() const { return ExtendedCells; }
 
 
     const CutCellMapping& getCutCellInfo() const { return CutCellInfo; }
 protected:
+
     MultiIndexSet DeadCells;
     MultiIndexSet AliveCells;
 
@@ -47,8 +52,11 @@ protected:
     CutCellMapping CutCellInfo;
 
     MultiIndexSet SideCells;
+
     MultiIndexSet EdgeCells;
     MultiIndexSet CoreCells;
+
+    MultiIndexSet ExtendedCells;
 };
 void CellDivision::LocateAllCells(const Grid &grid, const CyclicCurve &boundaryCurve)
 {
@@ -57,6 +65,7 @@ void CellDivision::LocateAllCells(const Grid &grid, const CyclicCurve &boundaryC
     this->LocateSideCells(grid);
     // this->LocateEdgeCells(grid);
     this->LocateCoreCells(grid);
+    this->LocateExtendedCells(grid);
 }
 
 
@@ -112,6 +121,7 @@ void CellDivision::LocateSideCells(const Grid &grid)
 /// @brief Locate the core cells and edge cells
 void CellDivision::LocateCoreCells(const Grid &grid)
 {
+    //Dead cells may contain in the 2nd-inner part of the domain
     loop_inner_cell_2(grid, i, j)
     {
         MultiIndex index{i, j};
@@ -129,6 +139,27 @@ void CellDivision::LocateCoreCells(const Grid &grid)
         }
     }
 }
+void CellDivision::LocateExtendedCells(const Grid &grid)
+{
+    MultiIndexSet OuterCells = getOuterCells(grid);
+    for (const auto& index : OuterCells)
+    {
+        //Excluding cut cells, dead cells, side cells.
+        if (CutCells.find(index) == CutCells.end() && DeadCells.find(index) == DeadCells.end() && SideCells.find(index) == SideCells.end())
+        {
+            if (isExtendedCell(index, grid))
+            {
+                ExtendedCells.insert(index);
+            }
+            else
+            {
+                EdgeCells.insert(index);
+            }
+        }
+    }
+}
+
+
 /// @brief True means core cell, False means Edge cell
 /// @param index 
 /// @param grid 
@@ -147,7 +178,24 @@ bool CellDivision::isCoreCell(const MultiIndex &index, const Grid &grid)
     }
     return isCore;
 }
-
+/// @brief True means core cell, False means Edge cell
+/// @param index 
+/// @param grid 
+/// @return bool
+bool CellDivision::isExtendedCell(const MultiIndex &index, const Grid &grid)
+{
+    bool isExtend = true;
+    std::vector<MultiIndex> neighbours = ExtendedVonNeumannNeighbour(index, grid);
+    for (const auto& neighbour : neighbours)
+    {
+        if (CutCells.find(neighbour) != CutCells.end() || DeadCells.find(neighbour) != DeadCells.end())
+        {
+            isExtend = false;
+            break;
+        }
+    }
+    return isExtend;
+}
 
 // /******************************************************************************* */
 // /// @brief Dropped

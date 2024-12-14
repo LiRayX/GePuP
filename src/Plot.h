@@ -223,43 +223,78 @@ void plotCellsWithLegend(const CellDivision &cellDivison, const Grid &grid)
     plt::legend();
 }
 
-
 void plotCells(const CellDivision &cellDivison, const Grid &grid)
 {
+    std::vector<double> x, y;
     //plot DeadCells
     const MultiIndexSet &DeadCells = cellDivison.getDeadCells();
+    x.clear();
+    y.clear();
     for (const auto &index : DeadCells)
     {
         Vec center = grid.center(index[0], index[1]);
-        plt::plot({center[0]}, {center[1]}, "ko");
+        x.push_back(center[0]);
+        y.push_back(center[1]);
     }
-    //plot AliveCells
+    plt::scatter(x, y, 3.0, {{"color", "black"}, {"marker", "o"}});
+
     //plot CutCells
     const MultiIndexSet &CutCells = cellDivison.getCutCells();
+    x.clear();
+    y.clear();
     for (const auto &index : CutCells)
     {
         Vec center = grid.center(index[0], index[1]);
-        plt::plot({center[0]}, {center[1]}, "bo");
+        x.push_back(center[0]);
+        y.push_back(center[1]);
     }
+    plt::scatter(x, y, 3.0, {{"color", "blue"}, {"marker", "o"}});
+
     //plot SideCells
     const MultiIndexSet &SideCells = cellDivison.getSideCells();
+    x.clear();
+    y.clear();
     for (const auto &index : SideCells)
     {
         Vec center = grid.center(index[0], index[1]);
-        plt::plot({center[0]}, {center[1]}, "go");
+        x.push_back(center[0]);
+        y.push_back(center[1]);
     }
+    plt::scatter(x, y, 3.0, {{"color", "green"}, {"marker", "o"}});
+
     //plot EdgeCells
     const MultiIndexSet &EdgeCells = cellDivison.getEdgeCells();
+    x.clear();
+    y.clear();
     for (const auto &index : EdgeCells)
     {
         Vec center = grid.center(index[0], index[1]);
-        plt::plot({center[0]}, {center[1]}, "yo");
+        x.push_back(center[0]);
+        y.push_back(center[1]);
     }
+    plt::scatter(x, y, 3.0, {{"color", "yellow"}, {"marker", "o"}});
+
     // plot CoreCells
     const MultiIndexSet &CoreCells = cellDivison.getCoreCells();
+    x.clear();
+    y.clear();
     for (const auto &index : CoreCells)
     {
         Vec center = grid.center(index[0], index[1]);
-        plt::plot({center[0]}, {center[1]}, "mo");
+        x.push_back(center[0]);
+        y.push_back(center[1]);
     }
+    plt::scatter(x, y, 3.0, {{"color", "magenta"}, {"marker", "o"}});
+
+    //plot ExtendedCells
+    const MultiIndexSet &ExtendedCells = cellDivison.getExtendedCells();
+    x.clear();
+    y.clear();
+    for (const auto &index : ExtendedCells)
+    {
+        Vec center = grid.center(index[0], index[1]);
+        x.push_back(center[0]);
+        y.push_back(center[1]);
+    }
+    plt::scatter(x, y, 3.0, {{"color", "red"}, {"marker", "x"}});
 }

@@ -46,13 +46,18 @@ public:
     void LocateCutCells(const Grid &grid, const BoundaryCurve &boundary);
 
     void LocateSideCells(const Grid &grid);
-    bool isSideCell(const MultiIndex &index);
+    bool isSideCell(const MultiIndex &index, const Grid &grid);
 
-    void LocateEdgeCells(const Grid &grid);
-    bool isEdgeCell(const MultiIndex &index);
+    // void LocateEdgeCells(const Grid &grid);
+    // bool isEdgeCell(const MultiIndex &index, const Grid &grid);
 
+    /// @brief Locate the core cells and edge cells
     void LocateCoreCells(const Grid &grid);
-    bool isCoreCell(const MultiIndex &index);
+    /// @brief Verify if the cell is a core cell or an edge cell
+    /// @param index 
+    /// @param grid 
+    /// @return true means core cell, false means edge cell
+    bool isCoreCell(const MultiIndex &index, const Grid &grid);
 protected:
     MultiIndexSet DeadCells;
     MultiIndexSet AliveCells;
@@ -91,7 +96,7 @@ protected:
 void CellClassifier::LocateAliveCells(const Grid &grid)
 {
     this->LocateSideCells(grid);
-    this->LocateEdgeCells(grid);
+    // this->LocateEdgeCells(grid);
     this->LocateCoreCells(grid);
 }
 
@@ -132,32 +137,13 @@ void CellClassifier::LocateSideCells(const Grid &grid)
         int j_max = map.second.second;
         for(int j = j_min+1; j <= j_max-1; j++)
         {
-            if(this->isSideCell({i, j}))
+            if(this->isSideCell({i, j}, grid))
             {
                 SideCells.insert({i, j});
             }
         }
     }
 }
-
-void CellClassifier::LocateEdgeCells(const Grid &grid)
-{
-    RangeMap rangeMap = getRangeOfCutCells(CutCells);
-    for(const auto &map : rangeMap)
-    {
-        int i = map.first;
-        int j_min = map.second.first;
-        int j_max = map.second.second;
-        for(int j = j_min+2; j <= j_max-2; j++)
-        {
-            if(this->isEdgeCell({i, j}))
-            {
-                EdgeCells.insert({i, j});
-            }
-        }
-    }
-}
-
 
 void CellClassifier::LocateCoreCells(const Grid &grid)
 {
@@ -167,15 +153,42 @@ void CellClassifier::LocateCoreCells(const Grid &grid)
         int i = map.first;
         int j_min = map.second.first;
         int j_max = map.second.second;
-        for(int j = j_min+3; j <= j_max-3; j++)
+        for(int j = j_min+2; j <= j_max-2; j++)
         {
-            if(this->isCoreCell({i, j}))
+            MultiIndex index = {i, j};
+            if(CutCells.find(index) != CutCells.end() || SideCells.find(index) != SideCells.end())
             {
-                CoreCells.insert({i, j});
+                if (isCoreCell(index, grid))
+                {
+                    CoreCells.insert(index);
+                }
+                else
+                {
+                    EdgeCells.insert(index);
+                }
             }
         }
     }
 }
+
+
+// void CellClassifier::LocateCoreCells(const Grid &grid)
+// {
+//     RangeMap rangeMap = getRangeOfCutCells(CutCells);
+//     for(const auto &map : rangeMap)
+//     {
+//         int i = map.first;
+//         int j_min = map.second.first;
+//         int j_max = map.second.second;
+//         for(int j = j_min+3; j <= j_max-3; j++)
+//         {
+//             if(this->isCoreCell({i, j}))
+//             {
+//                 CoreCells.insert({i, j});
+//             }
+//         }
+//     }
+// }
 
 
 
@@ -186,14 +199,14 @@ void CellClassifier::LocateCoreCells(const Grid &grid)
 /// @brief Not cut cell, and at least one neighbour is a cut cell
 /// @param index 
 /// @return 
-bool CellClassifier::isSideCell(const MultiIndex &index)
+bool CellClassifier::isSideCell(const MultiIndex &index, const Grid &grid)
 {
     //If the cell is a cut cell, then it is not a side cell
     if(CutCells.find(index) != CutCells.end())
     {
         return false;
     }
-    std::vector<MultiIndex> neighbour = VonNeumannNeighbour(index);
+    std::vector<MultiIndex> neighbour = VonNeumannNeighbour(index, grid);
     for(const auto &neigh : neighbour)
     {
         if(CutCells.find(neigh) != CutCells.end())
@@ -203,39 +216,58 @@ bool CellClassifier::isSideCell(const MultiIndex &index)
     }
     return false;
 }
-/// @brief Not a cut cell or a side cell, and any neighbours is a side cell 
-/// @param index 
-/// @return 
-bool CellClassifier::isEdgeCell(const MultiIndex &index)
+
+
+
+bool CellClassifier::isCoreCell(const MultiIndex &index, const Grid &grid)
 {
-    //If the cell is a side cell, then it is not an edge cell
-    if(CutCells.find(index) != CutCells.end() || SideCells.find(index) != SideCells.end())
+    bool isCore = true;
+    std::vector<MultiIndex> neighbours = ExtendedVonNeumannNeighbour(index, grid);
+    for (const auto& neighbour : neighbours)
     {
-        return false;
-    }
-    //If a neighbour of the cell is a side cell, and none of the neighbour is a cut cell, then the cell is an edge cell
-    std::vector<MultiIndex> neighbour = VonNeumannNeighbour(index);
-    for(const auto &neigh : neighbour)
-    {
-        if(SideCells.find(neigh) != SideCells.end())
+        if (CutCells.find(neighbour) != CutCells.end() || DeadCells.find(neighbour) != DeadCells.end())
         {
-            return true;
+            isCore = false;
+            break;
         }
     }
-    return false;
+    return isCore;
 }
 
-bool CellClassifier::isCoreCell(const MultiIndex &index)
-{
-    if(CutCells.find(index) != CutCells.end() || SideCells.find(index) != SideCells.end() || EdgeCells.find(index) != EdgeCells.end())
-    {
-        return false;
-    }
-    else 
-    {
-        return true;
-    }
-}
+// /// @brief Not a cut cell or a side cell, and any neighbours is a side cell 
+// /// @param index 
+// /// @return 
+// bool CellClassifier::isEdgeCell(const MultiIndex &index)
+// {
+//     //If the cell is a side cell, then it is not an edge cell
+//     if(CutCells.find(index) != CutCells.end() || SideCells.find(index) != SideCells.end())
+//     {
+//         return false;
+//     }
+//     //If a neighbour of the cell is a side cell, and none of the neighbour is a cut cell, then the cell is an edge cell
+//     std::vector<MultiIndex> neighbour = VonNeumannNeighbour(index);
+//     for(const auto &neigh : neighbour)
+//     {
+//         if(SideCells.find(neigh) != SideCells.end())
+//         {
+//             return true;
+//         }
+//     }
+//     return false;
+// }
+
+// bool CellClassifier::isCoreCell(const MultiIndex &index)
+// {
+//     if(CutCells.find(index) != CutCells.end() || SideCells.find(index) != SideCells.end() || EdgeCells.find(index) != EdgeCells.end())
+//     {
+//         return false;
+//     }
+//     else 
+//     {
+//         return true;
+//     }
+// }
+
 
 
 

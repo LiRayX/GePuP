@@ -1,0 +1,33 @@
+\documentclass[12pt,halfline,a4paper]{ouparticle}
+
+\begin{document}
+
+\title{Ball Sinking into a Viscous Fluid} 
+
+\author{%
+\name{Li Ruixiang}
+\email{\texttt{liruixiang@zju.edu.cn}}
+}
+\date{}
+
+\maketitle
+
+\section{Motion of a Ball Sinking into a Viscous Fluid}
+一个刚体在液体中的运动由下列的运动方程描述：
+\begin{equation}\begin{aligned}
+    & \rho_{p}V_{c}\dot{\mathbf{u}}_{c}=\rho_{f}\oint_{\partial S}\boldsymbol{\tau}\cdot\mathbf{n}\mathrm{d}\sigma+(\rho_{p}-\rho_{f})V_{c}\mathbf{g}, \\
+    & I_{c}\dot{\boldsymbol{\omega}}_{c}=\rho_{f}\oint_{\partial S}\mathbf{r}\times(\boldsymbol{\tau}\cdot\mathbf{n})\mathrm{d}\sigma,
+   \end{aligned}\end{equation}
+其中$\rho_{p}$是刚体的密度,$V_{c}$是刚体的体积,$\mathbf{u}_{c}$是刚体的质心速度,$\rho_{f}$是流体的密度,$\boldsymbol{\tau}$是应力张量,$\mathbf{n}$是单位法向量,$\mathbf{g}$是重力加速度,$I_{c}$是刚体的转动惯量,$\boldsymbol{\omega}_{c}$是刚体的角速度,$\mathbf{r}$是刚体上的点到质心的矢量,$S$是刚体的表面.
+对于不可压流体,应力张量$\boldsymbol{\tau}$可以表示为
+$$\boldsymbol \tau = -pI + \nu (\nabla \boldsymbol{u} + (\nabla \boldsymbol{u})^T)$$
+
+\section{Coupling of the Solid and the Fluid}
+固液边界的耦合条件为无滑移边界条件,即液体和固体之间的相对速度为0.
+固体的速度可以表示为平动和转动的合成:
+\begin{equation}\mathbf u(x)=\mathbf{u}_c+\boldsymbol{\omega}_c\times(x-x_c),\end{equation}
+
+
+
+
+\end{document}

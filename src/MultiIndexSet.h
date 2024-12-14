@@ -22,6 +22,8 @@ std::vector<MultiIndex> ExtendedVonNeumannNeighbour(const MultiIndex &index, con
 /// @brief Binary Operator of sets.
 MultiIndexSet unionSets(const MultiIndexSet& set1, const MultiIndexSet& set2);
 MultiIndexSet differenceSets(const MultiIndexSet& set1, const MultiIndexSet& set2); 
+
+MultiIndexSet getOuterCells(const Grid& grid);
 /// @brief Hash function for MultiIndex to be used in unordered_set 
 namespace std 
 {
@@ -108,8 +110,23 @@ MultiIndexSet differenceSets(const MultiIndexSet& set1, const MultiIndexSet& set
     }
     return result;
 }
-
-
+/// @brief Get the outer cells of the grid, which are the cells on the boundary or near the boundary need a ghost cell.
+/// @param grid 
+/// @return 
+MultiIndexSet getOuterCells(const Grid& grid)
+{
+    MultiIndexSet outerCells;
+    int m = grid.get_size()[0];
+    int n = grid.get_size()[1];
+    loop_cell_2(grid, i, j)
+    {
+        if(i == 0 || i == m-1 || j == 0 || j == n-1 || i == 1 || i == m-2 || j == 1 || j == n-2)
+        {
+            outerCells.insert({i, j});
+        }
+    }
+    return outerCells;
+}
 
 
 

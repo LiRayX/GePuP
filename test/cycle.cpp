@@ -15,7 +15,7 @@ int main()
     double h = 1.0 / n_seg;
     Grid grid(low, high, h);
     //圆
-    Vec center{0.52, 0.51};
+    Vec center{0.52, 0.51+4*h};
     double radius = 0.2;
     CyclicCurve cycle(center, radius);
     cycle.setIntersections(grid);

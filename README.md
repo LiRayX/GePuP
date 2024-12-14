@@ -22,7 +22,6 @@ Structured Grid.
 
 Operations on unordered_set of MultiIndex.
 
-
 #### ButcherTable.h
 
 ButcherTable of ClassicalRK4 and ARK436L2SA
@@ -65,7 +64,9 @@ Describe the ball in 2D.
 Dividing the cell into different type, according to the releative position to the ball.
 
 
-
+## 2.Idea
++ 4th order operators coefficients can be writen to a funtion by swith case -2:2
++ Ghost cell cofficients can be treated in the same way, but swith case 0:4
 
 
 
