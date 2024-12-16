@@ -165,7 +165,46 @@ void CutCellHandler::TwoInsideCorner2(const MultiIndex &index, const ParaSet &pa
     centroid = centroid/volume;
 }
 
+void CutCellHandler::TwoInsideCorner4(const MultiIndex &index, const ParaSet &para, const Grid &grid, const CyclicCurve &boundaryCurve)
+{
+    auto it = para.begin();
+    ParaInterval lambda_interval_1 = std::make_pair(*it, *(it++));
+    ParaInterval lambda_interval_2 = std::make_pair(*(it++), *(it++));
 
+    ParaInterval lambda_interval_1 = AdjustParaInterval(lambda_interval_1);
+    ParaInterval lambda_interval_2 = AdjustParaInterval(lambda_interval_2);
+    /**********************************Computering the Curved Quadrilateral*********************************/
+    //In this case, the convex curved quadrilateral is divided into a curved triangle and a triangle
+    //And the alive region is the Complement of the whole cell
+    Vec vertex = *inside_corners.begin();
+    Vec vertex_t = *inside_corners.rbegin();
+    //Set the vertex of the curved triangle, each inside corner is OK
+    //Construct the curved triangle
+    CurvedTriangle curvedTriangle_1(boundaryCurve, vertex, lambda_interval_1);
+    CurvedTriangle curvedTriangle_2(boundaryCurve, vertex, lambda_interval_2);
+    //Set the vertices of the triangle
+        //Get the intersection points
+    Vec intersection_mid_1 = boundaryCurve.getPoint(lambda_interval_1.second);
+    Vec intersection_mid_2 = boundaryCurve.getPoint(lambda_interval_2.first);
+    //Find the corner away from the outside corner, this corner will be the vertex of triangle
+    Vec intersection = boundaryCurve.getPoint(lambda_interval_1.first);
+    //If the intersection point is on the same face as the vertex of the curved triangle
+    //Then the left point will be a vertex of the triangle
+    Vec diff = intersection - vertex;
+    double tol = 1e-12;
+    if (std::fabs(diff[0])<tol || std::fabs(diff[1])<tol)
+    {
+        intersection = boundaryCurve.getPoint(lambda_interval_2.second);
+    }
+    //Construct the triangle
+    Triangle triangle_1(vertex, intersection_mid_1, intersection_mid_2);
+    Triangle triangle_2(vertex, vertex_t, intersection);
+
+    volume = grid.get_cell_volume() - triangle_1.Volume() - triangle_2.Volume() - curvedTriangle_1.getVolume() - curvedTriangle_2.getVolume();
+    centroid = grid.center(index)*grid.get_cell_volume() - triangle_1.Centroid()*triangle_1.Volume() - triangle_2.Centroid()*triangle_2.Volume() - curvedTriangle_1.getCentroid()*curvedTriangle_1.getVolume() - curvedTriangle_2.getCentroid()*curvedTriangle_2.getVolume();
+    //Get the centroid of the alive region
+    centroid = centroid/volume;
+}
 
 
 void CutCellHandler::ThreeInsideCorner(const MultiIndex &index, const ParaSet &para, const Grid &grid, const CyclicCurve &boundaryCurve)
@@ -230,6 +269,19 @@ void swap(double &a, double &b)
     double temp = a;
     a = b;
     b = temp;
+}
+
+
+ParaInterval AdjustParaInterval(const ParaInterval &para)
+{
+    double para_1 = para.first;
+    double para_2 = para.second;
+    if (para_2 - para_1 > Pi)
+    {
+        para_2 -= 2 * Pi;
+    }
+    swap(para_1, para_2);
+    return std::make_pair(para_1, para_2);
 }
 
 ParaInterval AdjustParaInterval(const ParaSet &para)
