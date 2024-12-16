@@ -1,11 +1,11 @@
 #pragma once
 
 #include <iostream>
-#include "../lib/Eigen/Core"
-#include "../lib/unsupported/Eigen/Splines"
-#include "../src/Vec.h"
-#include "../src/Grid.h"
-#include "MultiIndexSet.h"
+#include "../../lib/Eigen/Core"
+#include "../../lib/unsupported/Eigen/Splines"
+#include "../Vec.h"
+#include "../Grid.h"
+#include "../MultiIndexSet.h"
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>

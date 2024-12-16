@@ -1,10 +1,10 @@
 // Draw a simple case using matplotlib-cpp
-#include "../src/BoundaryCurve.h"
+#include "../src/SplineCurve/BoundaryCurve.h"
 #include "../src/Grid.h"
 #include "../src/Vec.h"
-#include "../src/CurveBelonging.h"
+#include "../src/SplineCurve/CurveBelonging.h"
 #include "../src/Plot.h"
-#include "../src/CellClassifier.h"
+#include "../src/SplineCurve/CellClassifier.h"
 #include "../lib/matplotlib-cpp/matplotlibcpp.h"
 #include <iostream>
 #include <vector>

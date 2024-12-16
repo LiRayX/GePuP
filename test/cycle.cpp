@@ -1,7 +1,10 @@
-#include "../src/CyclicCurve.h"
-#include "../src/CellDivision.h"
-#include "../src/Plot.h"
+#include "../src/CyclicCurve/CurvedTriangle.h"
+#include "../src/CyclicCurve//CellDivision.h"
+#include "../src/CyclicCurve/CyclicCurve.h"
+#include "../src/CyclicCurve/CutCellHandler.h"
 
+#include "../src/Plot.h"
+#include "../src/numlib.h"
 #include <iostream>
 
 
@@ -26,10 +29,11 @@ int main()
 
     auto ghostNeighbour2 = GhostNeighbour({12, 14}, grid);
     ghostNeighbour.insert(ghostNeighbour.end(), ghostNeighbour2.begin(), ghostNeighbour2.end());
-    for(const auto& index : ghostNeighbour)
-    {
-        std::cout << index[0] << " " << index[1] << std::endl;
-    }
+    // for(const auto& index : ghostNeighbour)
+    // {
+    //     std::cout << index[0] << " " << index[1] << std::endl;
+    // }
+
     // for(const auto& index : ghostNeighbour2)
     // {
     //     std::cout << index[0] << " " << index[1] << std::endl;
@@ -57,7 +61,53 @@ int main()
     //         std::cout << "Para: " << para << std::endl;
     //     }
     // }
+    MultiIndex index{6,14};
+    CutCellMapping cutCellInfo = cellDivision.getCutCellInfo();
+    ParaSet para = cutCellInfo[index];
 
+    CutCellHandler cutCellHandler;
+    std::cout << "ParaSet Size: " << para.size() << std::endl;
+    double lambda_1 = *para.begin();
+    double lambda_2 = *para.rbegin();
+
+    // VecList outside_corners = cutCellHandler.getInsideCorners(index, grid, cycle);
+    // std::cout << "Outside Corner Size: " << outside_corners.size() << std::endl;
+    // for(const auto& corner : outside_corners)
+    // {
+    //     std::cout << corner << std::endl;
+    // }
+
+    // CurvedTriangle curvedTriangle(cycle, outside_corners[0]);
+    // double quadresult = quad2D_scalar(curvedTriangle.Jacobian(), lambda_1, lambda_2, 0, 1); 
+    // std::cout << "Quad Result: " << quadresult << std::endl;
+    // Vec centroid = quad2D_vector(curvedTriangle.Centroid(), lambda_1, lambda_2, 0, 1) / quadresult;
+    // std::cout << "Centroid: " << centroid << std::endl;
+    // double distance = norm(centroid - cycle.getCenter()) - cycle.getRadius();
+    // std::cout << "Distance: " << distance << std::endl;
+
+    MultiIndex index2{11,10};
+    ParaSet para2 = cutCellInfo[index2];
+    double lambda_3 = *para2.begin();
+    double lambda_4 = *para2.rbegin();
+    double lambda[2] = {lambda_3, lambda_4};
+    VecList inside_corners2 = cutCellHandler.getInsideCorners(index2, grid, cycle);
+    std::cout << "Inside Corner Size: " << inside_corners2.size() << std::endl;
+    CurvedTriangle curvedTriangle2(cycle, inside_corners2[0], lambda);
+    // std::cout << "Centroid2: " << centroid2 << std::endl;
+    // double distance2 = norm(centroid2 - cycle.getCenter()) - cycle.getRadius();
+    // std::cout << "Distance2: " << distance2 << std::endl;
+    double volume = grid.get_cell_volume() - curvedTriangle2.getVolume();
+    std::cout << "Volume: " << volume << std::endl;
+    Vec centroid3 = (grid.center(index2)*grid.get_cell_volume() - curvedTriangle2.getCentroid()*curvedTriangle2.getVolume()) / volume;
+    std::cout << "Centroid3: " << centroid3 << std::endl;
+    double distance3 = norm(centroid3 - cycle.getCenter()) - cycle.getRadius();
+    std::cout << "Distance3: " << distance3 << std::endl;
+
+    VecList testEmpty;
+    std::cout << "Empty size: " << testEmpty.size() << std::endl;
+
+    // plotVec(centroid);
+    plotVec(centroid3);
     plotGrid(grid);  
     plotCycle(cycle);
     plotCells(cellDivision, grid);

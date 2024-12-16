@@ -35,11 +35,11 @@ inline double quad(const T_Func &g, double a, double b)
   double R = 0;
   double u = (a + b) / 2, v = (b - a) / 2;
   for (int k = 0; k < 4; ++k)
-    R += GaussLegendreConstant4order::weights[k] * g(u + GaussLegendreConstant4order::knots[k] * v);
-  return v * R;
+    R += g(u + GaussLegendreConstant4order::knots[k] * v) * GaussLegendreConstant4order::weights[k];
+  return R * v;
 }
 template <class T_Func>
-double quad2D(const T_Func &g, double a, double b, double c, double d)
+double quad2D_scalar(const T_Func &g, double a, double b, double c, double d)
 {
   double R = 0;
   double u = (a + b) / 2, v = (b - a) / 2;
@@ -49,10 +49,27 @@ double quad2D(const T_Func &g, double a, double b, double c, double d)
     for (int j = 0; j < 4; ++j)
     {
       Vec point = {u + GaussLegendreConstant4order::knots[i] * v, s + GaussLegendreConstant4order::knots[j] * t};
-      R += GaussLegendreConstant4order::weights[i] * GaussLegendreConstant4order::weights[j] * g(point);
+      R += g(point) * GaussLegendreConstant4order::weights[i] * GaussLegendreConstant4order::weights[j];
     }
   }
-  return v * t * R;
+  return R * v * t;
+}
+
+template <class T_Func>
+Vec quad2D_vector(const T_Func &g, double a, double b, double c, double d)
+{
+  Vec R = {0, 0};
+  double u = (a + b) / 2, v = (b - a) / 2;
+  double s = (c + d) / 2, t = (d - c) / 2;
+  for (int i = 0; i < 4; ++i)
+  {
+    for (int j = 0; j < 4; ++j)
+    {
+      Vec point = {u + GaussLegendreConstant4order::knots[i] * v, s + GaussLegendreConstant4order::knots[j] * t};
+      R += g(point) * GaussLegendreConstant4order::weights[i] * GaussLegendreConstant4order::weights[j];
+    }
+  }
+  return R * v * t;
 }
 
 // struct GaussLegendreConstant4order2D

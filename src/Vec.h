@@ -95,6 +95,13 @@ public:
     return res;
   }
 
+  Vec& operator+=(const Vec& rhs)
+  {
+      for (int i = 0; i < 2; i++)
+          coord[i] += rhs.coord[i];
+      return *this;
+  }
+
   friend std::ostream &operator<<(std::ostream &os, const Vec &_v)
   {
     os << "(" << _v[0];

@@ -42,19 +42,17 @@ int main()
     std::cout << "ParaSet Size: " << para.size() << std::endl;
     double lambda_1 = *para.begin();
     double lambda_2 = *para.rbegin();
-
-    VecList outside_corners = cutCellHandler.getOutsideCorners(index, grid, cycle);
-    std::cout << "Outside Corner Size: " << outside_corners.size() << std::endl;
-    for(const auto& corner : outside_corners)
-    {
-        std::cout << corner << std::endl;
-    }
-
-    CurvedTriangle curvedTriangle(cycle, outside_corners[0]);
-    double quadresult = quad2D(curvedTriangle.Jacobian(), lambda_1, lambda_2, 0, 1); 
+    
+    CurvedTriangle curvedTriangle(cycle, center, lambda_1, lambda_2);
+ /*************************************************************************** */
+  //  test for the Jacobian of the CurvedTriangle
+  //  Diff: 8.67362e-19
+    double area = 0.5* (lambda_2 - lambda_1) * radius * radius;
+    std::cout << "Exat Area: " << area << std::endl;
+    double quadresult = curvedTriangle.getVolume();
     std::cout << "Quad Result: " << quadresult << std::endl;
 
-
-
+    double diff = std::fabs(quadresult - area);
+    std::cout << "Diff: " << diff << std::endl;
   
 }

@@ -22,6 +22,8 @@ public:
   Vec hi() const;
   double get_h() const;
   const int *get_size() const;
+
+  double get_cell_volume() const {return h*h;}
   // return the index of cell, counting from left-down, starting from 0
   int MultiToSingle(int i, int j) const;
   MultiIndex SingleToMulti(int index) const;
@@ -38,8 +40,10 @@ public:
 
   //Return the center of the cell
   Vec operator()(int i, int j) const;
+  Vec operator()(MultiIndex index) const;
   // Based on the left-down coord(i,j)
   Vec center(int i, int j) const;
+  Vec center(MultiIndex index) const;
 
   bool isIndexValid(int i, int j) const;
   bool isIndexValid(MultiIndex index) const;
@@ -51,6 +55,7 @@ public:
   bool empty() const;
   bool contain(const Vec &pos) const;
   bool contain(const Grid &rhs) const;
+  // return the volume of the whole domain
   int volume() const;
   MultiIndex LocateCell(const Vec &pos) const;
   Grid refine() const;
@@ -134,11 +139,22 @@ Vec Grid::operator()(int i, int j) const
   return corner[0] + Vec{i * h, j * h};
 }
 
+Vec Grid::operator()(MultiIndex index) const
+{
+  return operator()(index[0], index[1]);
+}
+
 Vec Grid::center(int i, int j) const
 {
   assert(i < size[0] && j < size[1]);
   return corner[0] + Vec{(i + 1. / 2) * h, (j + 1. / 2) * h};
 }
+
+Vec Grid::center(MultiIndex index) const
+{
+  return center(index[0], index[1]);
+}
+
 
 bool Grid::OnFace(int i, int j, int x, int y, const Vec &point, double tol) const
 {

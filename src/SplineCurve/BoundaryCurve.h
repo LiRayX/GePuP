@@ -1,10 +1,10 @@
 #pragma once
 
 
-#include "../lib/Eigen/Core"
-#include "../lib/unsupported/Eigen/Splines"
-#include "Vec.h"
-#include "Grid.h"
+#include "../../lib/Eigen/Core"
+#include "../../lib/unsupported/Eigen/Splines"
+#include "../Vec.h"
+#include "../Grid.h"
 #include "CurveBelonging.h"
 #include <iostream>
 #include <vector>

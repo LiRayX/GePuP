@@ -1,8 +1,8 @@
 #pragma once
 
 #include <iostream>
-#include "Vec.h"
-#include "Grid.h"
+#include "../Vec.h"
+#include "../Grid.h"
 #include "BoundaryCurve.h"
 
 #include <vector>

@@ -1,11 +1,11 @@
 // Draw a simple case using matplotlib-cpp
-#include "BoundaryCurve.h"
+#include "SplineCurve/BoundaryCurve.h"
 #include "Grid.h"
 #include "Vec.h"
 #include "../lib/matplotlib-cpp/matplotlibcpp.h"
-#include "CurveBelonging.h"
-#include "CyclicCurve.h"
-#include "CellDivision.h"
+#include "SplineCurve/CurveBelonging.h"
+#include "CyclicCurve/CyclicCurve.h"
+#include "CyclicCurve/CellDivision.h"
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -13,8 +13,11 @@
 
 namespace plt = matplotlibcpp;
 
+void plotVec(const Vec &point);
 /// @brief plot grid, control points and splines.
 void plotGrid(const Grid &g);
+
+
 
 void plotControlPoints(const VecList &controlPoints);
 void plotSpline(const Spline2d &spline, double start, double end, double step);
@@ -26,6 +29,14 @@ void plotCycle(const CyclicCurve &cycle);
 void plotCells(const CellDivision &cellDivison, const Grid &grid);
 void plotCellsWithLegend(const CellDivision &cellDivison, const Grid &grid);
 
+
+void plotVec(const Vec &point)
+{
+    std::vector<double> x, y;
+    x.push_back(point[0]);
+    y.push_back(point[1]);
+    plt::scatter(x, y, 5.0, {{"color", "red"}, {"marker", "+"}});
+}
 
 
 void plotGrid(const Grid &g)
