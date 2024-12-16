@@ -22,7 +22,18 @@ int main()
 
     CellDivision cellDivision;
     cellDivision.LocateAllCells(grid, cycle);
+    auto ghostNeighbour = GhostNeighbour({1, 3}, grid);
 
+    auto ghostNeighbour2 = GhostNeighbour({12, 14}, grid);
+    ghostNeighbour.insert(ghostNeighbour.end(), ghostNeighbour2.begin(), ghostNeighbour2.end());
+    for(const auto& index : ghostNeighbour)
+    {
+        std::cout << index[0] << " " << index[1] << std::endl;
+    }
+    // for(const auto& index : ghostNeighbour2)
+    // {
+    //     std::cout << index[0] << " " << index[1] << std::endl;
+    // }
     const MultiIndexSet& cutCells = cellDivision.getCutCells();
     const MultiIndexSet& sideCells = cellDivision.getSideCells();
     // std::cout << "sideCells Size: " << sideCells.size() << std::endl;

@@ -1,40 +1,60 @@
 #include "../src/Grid.h"
+#include "../src/numlib.h"
+#include "../src/Vec.h"
+#include "../src/Function.h"
+#include "../src/CyclicCurve/CyclicCurve.h"
+#include "../src/CyclicCurve/CellDivision.h"
+#include "../src/CyclicCurve/CurvedTriangle.h"
+#include "../src/CyclicCurve/CutCellHandler.h"
+
+#include <iostream>
+class testfun: public ScalarFunction
+{
+public:
+    double operator()(Vec _v) const override
+    {
+        return 1.0;
+    }
+};
+
+
 
 int main()
 {
-  Vec low{0, 0};
-  Vec high{1, 1};
-  Grid g(low, high, 0.25);
-  std::cout<<"grid size: "<<g.get_size()[0]<<" "<<g.get_size()[1]<<std::endl;
+    Vec low{0, 0};
+    Vec high{1, 1};
+    int n_seg = 16;
+    double h = 1.0 / n_seg;
+    Grid grid(low, high, h);
+    //圆
+    Vec center{0.52, 0.51+4*h};
+    double radius = 0.2;
+    CyclicCurve cycle(center, radius);
+    cycle.setIntersections(grid);
 
-  MultiIndex index{1,1};
-  Normal normal{1,0};
-  Vec center = g.center(index[0], index[1]);
-  std::cout<<"center: "<<center<<std::endl;
-  Vec pos{0.5, 0.35};
-  Vec pos1{0.49, 0.35};
-  Vec pos2{0.5-1e-7, 0.35};
+    CellDivision cellDivision;
+    cellDivision.LocateAllCells(grid, cycle);
+    MultiIndex index{6,14};
+    CutCellMapping cutCellInfo = cellDivision.getCutCellInfo();
+    ParaSet para = cutCellInfo[index];
 
-  bool onface = g.OnFace(index, normal, pos, 1e-6);
-  double dis = g.SignDistance(index, normal, pos);
-  double dis1 = g.SignDistance(index, normal, pos1);
-  double dis2 = g.SignDistance(index, normal, pos2);
-  // bool onface1 = g.OnFace(1, 1, 1, 0, pos1, 1e-6);
-  // bool onface2 = g.OnFace(1, 1, 1, 0, pos2, 1e-6);
-  std::cout<<"onface: "<<onface<<std::endl;
-  std::cout<<"dis:"<<dis<<std::endl;
-  std::cout<<"dis1:"<<dis1<<std::endl;
-  std::cout<<"dis2:"<<dis2<<std::endl;
-  // std::cout<<"onface1: "<<onface1<<std::endl;
-  // std::cout<<"onface2: "<<onface2<<std::endl;
+    CutCellHandler cutCellHandler;
+    std::cout << "ParaSet Size: " << para.size() << std::endl;
+    double lambda_1 = *para.begin();
+    double lambda_2 = *para.rbegin();
 
-  // std::cout << index << " " << c << std::endl;
-  // std::cout <<"simple index"<<std::endl;
-  // MultiIndex testmulti = gd.LocateCell(pos);
-  // std::cout << testmulti[0] << " " << testmulti[1] << std::endl;
-  // int testindex = gd.CellIndex(1, 2);
-  // std::cout << testindex << std::endl;
-  // std::cout << gd.IfOnLeftBound(1, 2) << std::endl;
-  // std::cout << gd.IfOnRightBound(3, 2) << std::endl;
+    VecList outside_corners = cutCellHandler.getOutsideCorners(index, grid, cycle);
+    std::cout << "Outside Corner Size: " << outside_corners.size() << std::endl;
+    for(const auto& corner : outside_corners)
+    {
+        std::cout << corner << std::endl;
+    }
 
+    CurvedTriangle curvedTriangle(cycle, outside_corners[0]);
+    double quadresult = quad2D(curvedTriangle.Jacobian(), lambda_1, lambda_2, 0, 1); 
+    std::cout << "Quad Result: " << quadresult << std::endl;
+
+
+
+  
 }

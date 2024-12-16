@@ -1,11 +1,11 @@
 #pragma once
 
 
-#include "Vec.h"
-#include "Grid.h"
-#include "CyclicCurve.h"
-#include "MultiIndexSet.h"
+#include "../Vec.h"
+#include "../Grid.h"
+#include "../MultiIndexSet.h"
 
+#include "CyclicCurve.h"
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
@@ -13,7 +13,7 @@
 #include <iostream>
 
 using VecList = std::vector<Vec>;
-using CutCellMapping = std::unordered_map<MultiIndex, std::set<double>>;
+using CutCellMapping = std::unordered_map<MultiIndex, ParaSet>;
 
 
 class CellDivision
@@ -185,7 +185,12 @@ bool CellDivision::isCoreCell(const MultiIndex &index, const Grid &grid)
 bool CellDivision::isExtendedCell(const MultiIndex &index, const Grid &grid)
 {
     bool isExtend = true;
+
     std::vector<MultiIndex> neighbours = ExtendedVonNeumannNeighbour(index, grid);
+    std::vector<MultiIndex> ghostneighbours = GhostNeighbour(index, grid);
+
+    neighbours.insert(neighbours.end(), ghostneighbours.begin(), ghostneighbours.end());
+    
     for (const auto& neighbour : neighbours)
     {
         if (CutCells.find(neighbour) != CutCells.end() || DeadCells.find(neighbour) != DeadCells.end())

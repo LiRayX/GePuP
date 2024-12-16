@@ -1,9 +1,9 @@
 #pragma once
 
 
-#include "../lib/Eigen/Core"
-#include "Vec.h"
-#include "Grid.h"
+#include "../../lib/Eigen/Core"
+#include "../Vec.h"
+#include "../Grid.h"
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -30,6 +30,7 @@ public:
     Vec getTangent(const Vec &point) const;
     
     Vec getPoint(double theta) const;
+    Vec getDer(double theta) const;
     Vec getNormal(double theta) const;
     Vec getTangent(double theta) const;
 
@@ -42,7 +43,6 @@ protected:
     double radius;
     ParaSet intersections;
 };
-
 
 
 Vec CyclicCurve::getNormal(const Vec &point) const
@@ -60,6 +60,11 @@ Vec CyclicCurve::getTangent(const Vec &point) const
 Vec CyclicCurve::getPoint(double theta) const
 {
     return center + Vec{std::cos(theta), std::sin(theta)} * radius;
+}
+
+Vec CyclicCurve::getDer(double theta) const
+{
+    return Vec{-std::sin(theta), std::cos(theta)} * radius;
 }
 
 Vec CyclicCurve::getNormal(double theta) const

@@ -18,6 +18,10 @@ Class of point/vector in R^2.
 
 Structured Grid.
 
+#### Function.h
+
+Class of scalar and vector function
+
 #### MultiIndexSet.h
 
 Operations on unordered_set of MultiIndex.
@@ -25,6 +29,7 @@ Operations on unordered_set of MultiIndex.
 #### ButcherTable.h
 
 ButcherTable of ClassicalRK4 and ARK436L2SA
+
 
 #### RungeKutta.h
 
@@ -63,6 +68,9 @@ Describe the ball in 2D.
 
 Dividing the cell into different type, according to the releative position to the ball.
 
+#### CellHandler.h
+
+Computering volume and centroid of cut cell.
 
 ## 2.Idea
 + 4th order operators coefficients can be writen to a funtion by swith case -2:2

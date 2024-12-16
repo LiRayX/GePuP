@@ -262,3 +262,8 @@ inline Vec outernormal(const Vec &v)
 {
   return normalize(clockwise(v));
 }
+
+inline double det(const Vec &lhs, const Vec &rhs)
+{
+  return lhs[0] * rhs[1] - lhs[1] * rhs[0];
+}

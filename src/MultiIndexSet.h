@@ -19,6 +19,8 @@ MultiIndex operator+(const MultiIndex& a, const Normal& b);
 std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index);
 std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index, const Grid &grid);
 std::vector<MultiIndex> ExtendedVonNeumannNeighbour(const MultiIndex &index, const Grid &grid);
+/// @brief Neighbors for Ghost Cell
+std::vector<MultiIndex> GhostNeighbour(const MultiIndex &index, const Grid &grid);
 /// @brief Binary Operator of sets.
 MultiIndexSet unionSets(const MultiIndexSet& set1, const MultiIndexSet& set2);
 MultiIndexSet differenceSets(const MultiIndexSet& set1, const MultiIndexSet& set2); 
@@ -88,6 +90,52 @@ std::vector<MultiIndex> ExtendedVonNeumannNeighbour(const MultiIndex &index, con
     return neighbour;
 }
 
+
+std::vector<MultiIndex> GhostNeighbour(const MultiIndex &index, const Grid &grid)
+{
+    std::vector<MultiIndex> neighbour; 
+
+    int i = index[0];
+    int j = index[1];
+
+    int m = grid.get_size()[0];
+    int n = grid.get_size()[1];
+
+    int n_ghost = 4;
+    //Left
+    if(i == 0 || i ==1)
+    {
+        for(int k = 0; k < n_ghost; k++)
+        {
+            neighbour.push_back({k, j});
+        }
+    }
+    //Right
+    if(i == m-1 || i == m-2)
+    {
+        for(int k = m-1; k > m-1-n_ghost; k--)
+        {
+            neighbour.push_back({k, j});
+        }
+    }
+    //Down
+    if(j == 0 || j == 1)
+    {
+        for(int k = 0; k < n_ghost; k++)
+        {
+            neighbour.push_back({i, k});
+        }
+    }
+    //Up
+    if(j == n-1 || j == n-2)
+    {
+        for(int k = n-1; k > n-1-n_ghost; k--)
+        {
+            neighbour.push_back({i, k});
+        }
+    }
+    return neighbour;
+}
 
 
 
