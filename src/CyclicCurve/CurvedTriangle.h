@@ -1,8 +1,11 @@
 #pragma once
 #include "CyclicCurve.h"
 #include "../numlib.h"
+#include "../Vec.h"
+#include <iostream>
 
 using ParaInterval = std::pair<double, double>;
+using VecList = std::vector<Vec>;
 
 class CurvedTriangle
 {
@@ -81,7 +84,7 @@ public:
     ~Triangle() = default;
 
 protected:
-    const VecList &vertices;
+    VecList vertices;
 };
 
 
@@ -110,10 +113,15 @@ auto CurvedTriangle::CentroidIntegral() const
 }
 Vec CurvedTriangle::CentroidIntegral(Vec para) const
 {
+    // X = (1-\theta)C(\lambda) + \theta V
+    //C(\lambda)
     Vec point = cycle.getPoint(para[0]);
+    //C'(\lambda)
     Vec der = cycle.getDer(para[0]) * (1 - para[1]);
+    //X = (1-\theta)C(\lambda) + \theta V
+    Vec coord = point*(1 - para[1]) + vertex*para[1];  
     double jacobian = std::fabs(det(der, vertex - point));
-    return point * jacobian;
+    return coord * jacobian;
 }
 
 double CurvedTriangle::getVolume() const

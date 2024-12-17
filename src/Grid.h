@@ -32,6 +32,7 @@ public:
   bool OnFace(int i, int j, int x, int y, const Vec &point, double tol) const;
   bool OnFace(MultiIndex index, Normal normal, const Vec &point, double tol) const;
 
+  bool isCorner(const Vec &point, const MultiIndex &index, double tol) const;
   //Sign distance from the point to the face
   double SignDistance(MultiIndex index, Normal normal,const Vec &point) const;
   double Distance(MultiIndex index, Normal normal,const Vec &point) const;
@@ -231,6 +232,16 @@ Normal Grid::getDirection(MultiIndex index, const Vec &point, double tol) const
     normal = {0, 0};
   }
   return normal;
+}
+
+
+bool Grid::isCorner(const Vec &point, const MultiIndex &index, double tol) const
+{
+  if (norm(abs(point-center(index)) - Vec{0.5*h, 0.5*h}) < tol)
+  {
+    return true;
+  }
+  return false;
 }
 
 

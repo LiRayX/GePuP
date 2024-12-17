@@ -37,22 +37,10 @@ int main()
     MultiIndex index{6,14};
     CutCellMapping cutCellInfo = cellDivision.getCutCellInfo();
     ParaSet para = cutCellInfo[index];
-
-    CutCellHandler cutCellHandler;
-    std::cout << "ParaSet Size: " << para.size() << std::endl;
-    double lambda_1 = *para.begin();
-    double lambda_2 = *para.rbegin();
-    
-    CurvedTriangle curvedTriangle(cycle, center, lambda_1, lambda_2);
- /*************************************************************************** */
-  //  test for the Jacobian of the CurvedTriangle
-  //  Diff: 8.67362e-19
-    double area = 0.5* (lambda_2 - lambda_1) * radius * radius;
-    std::cout << "Exat Area: " << area << std::endl;
-    double quadresult = curvedTriangle.getVolume();
-    std::cout << "Quad Result: " << quadresult << std::endl;
-
-    double diff = std::fabs(quadresult - area);
-    std::cout << "Diff: " << diff << std::endl;
+    Vec vertex_1 = {0.4375,0.9375};
+    Vec In_1 = {0.427838,0.9375};
+    Vec vertex = {0.4375,0.875};
+    Triangle triangle_1(vertex_1, vertex, In_1);
+    std::cout << "Triangle 1 Volume: " << triangle_1.Volume() << std::endl;
   
 }

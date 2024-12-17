@@ -12,24 +12,34 @@
 
 using VecList = std::vector<Vec>;
 using CutCellMapping = std::unordered_map<MultiIndex, std::set<double>>;
+using ParaInterval = std::pair<double, double>;
 
 void swap(double &a, double &b);
 /// @brief Adjust the parameter interval
 ParaInterval AdjustParaInterval(const ParaSet &para);
+ParaInterval AdjustParaInterval(const ParaInterval &para);
 /// @brief Get the direction to find the vertex of the triangle
 Vec getDirection(const Vec &intersection, const Vec &center);
+/// @brief Modify the parameter interval
+void Modify(ParaSet &para, const MultiIndex &index, const Grid &grid, const CyclicCurve &boundaryCurve);
 
 class CutCellHandler
 {
 public:
     CutCellHandler() = default;
     void ClassifyCorners(const MultiIndex &index, const Grid &grid, const CyclicCurve &boundaryCurve);
-    void Handler(const MultiIndex &index, const ParaSet &para, const Grid &grid, const CyclicCurve &boundaryCurve);
+    /// @brief 
+    /// @param index MultiIndex
+    /// @param para reference to change the para
+    /// @param grid 
+    /// @param boundaryCurve 
+    void Handler(const MultiIndex &index, ParaSet &para, const Grid &grid, const CyclicCurve &boundaryCurve);
 
     void OneInsideCorner(const MultiIndex &index, const ParaSet &para, const Grid &grid, const CyclicCurve &boundaryCurve);
 
     void TwoInsideCorner2(const MultiIndex &index, const ParaSet &para, const Grid &grid, const CyclicCurve &boundaryCurve);
     void TwoInsideCorner4(const MultiIndex &index, const ParaSet &para, const Grid &grid, const CyclicCurve &boundaryCurve);
+
     void ThreeInsideCorner(const MultiIndex &index, const ParaSet &para, const Grid &grid, const CyclicCurve &boundaryCurve);
 
     void FourInsideCorner(const MultiIndex &index, const ParaSet &para, const Grid &grid, const CyclicCurve &boundaryCurve);
@@ -37,9 +47,12 @@ public:
 
     void setVolume(double _volume) { volume = _volume; }
     double getVolume() const { return volume; }
+
     void setCentroid(Vec _centroid) { centroid = _centroid; }
     Vec getCentroid() const { return centroid; }
 
+    const VecList &getInsideCorners() const {return inside_corners;}
+    const VecList &getOutsideCorners() const {return outside_corners;}
 
 protected:
     double volume;
@@ -68,19 +81,23 @@ void CutCellHandler::ClassifyCorners(const MultiIndex &index, const Grid &grid, 
 
 
 
-void CutCellHandler::Handler(const MultiIndex &index, const ParaSet &para, const Grid &grid, const CyclicCurve &boundaryCurve)
+void CutCellHandler::Handler(const MultiIndex &index, ParaSet &para, const Grid &grid, const CyclicCurve &boundaryCurve)
 {
     //If only one intersection point, then it is a whole cell
-    if (para.size() == 1)
+    switch (para.size())
     {
+    case 1:
+        para.clear();
         volume = grid.get_cell_volume();
         centroid = grid.center(index);
+        break;
+    case 3:
+        Modify(para, index, grid, boundaryCurve);
+        break;
+    
+    default:
+        break;
     }
-    //Init the volume
-    double volume = 0;
-    //Basic information of grid
-    double h = grid.get_h();
-    //Get the outside corners
     //The number of outside corners
     int num_inside_corner = inside_corners.size();
     //According to the number of outside corners, we can determine the volume of the cut-cell
@@ -168,11 +185,12 @@ void CutCellHandler::TwoInsideCorner2(const MultiIndex &index, const ParaSet &pa
 void CutCellHandler::TwoInsideCorner4(const MultiIndex &index, const ParaSet &para, const Grid &grid, const CyclicCurve &boundaryCurve)
 {
     auto it = para.begin();
+
     ParaInterval lambda_interval_1 = std::make_pair(*it, *(it++));
     ParaInterval lambda_interval_2 = std::make_pair(*(it++), *(it++));
 
-    ParaInterval lambda_interval_1 = AdjustParaInterval(lambda_interval_1);
-    ParaInterval lambda_interval_2 = AdjustParaInterval(lambda_interval_2);
+    lambda_interval_1 = AdjustParaInterval(lambda_interval_1);
+    lambda_interval_2 = AdjustParaInterval(lambda_interval_2);
     /**********************************Computering the Curved Quadrilateral*********************************/
     //In this case, the convex curved quadrilateral is divided into a curved triangle and a triangle
     //And the alive region is the Complement of the whole cell
@@ -210,35 +228,41 @@ void CutCellHandler::TwoInsideCorner4(const MultiIndex &index, const ParaSet &pa
 void CutCellHandler::ThreeInsideCorner(const MultiIndex &index, const ParaSet &para, const Grid &grid, const CyclicCurve &boundaryCurve)
 {
     ParaInterval lambda = AdjustParaInterval(para);
+    /********************Computering the Curved Triangle Directly**************************************/
+       //In this case, we computering the curved triangle directly
+    //Construct the curved triangle with the outside corner
+    Vec outside_corner = *outside_corners.rbegin();
+    CurvedTriangle curvedTriangle(boundaryCurve, outside_corner, lambda);
+    //The alive region is just the curved triangle
+    volume = curvedTriangle.getVolume();
+    centroid = curvedTriangle.getCentroid();
+    /************************Alnative: Computering the Curved Pentagon*********************************/
+    // //In this case, the curved pentagon is divided into a curved triangle and two triangles
+    // //And the alive region is the Complement of the whole cell
+    //     //step-1: Get the vertex from the outside corner along the diagonal direction AND Construct the curved triangle
+    // Vec outside_corner = *outside_corners.begin();
+    // Vec vertex = grid.center(index)*2 - outside_corner;
+    // CurvedTriangle curvedTriangle(boundaryCurve, vertex, lambda);
+    //     //step-2: Specify the two triangles
+    // //Get Intersection points
+    // Vec intersection_1 = boundaryCurve.getPoint(lambda.first);
+    // Vec intersection_2 = boundaryCurve.getPoint(lambda.second);
 
-    /**********************************Computering the Curved Pentagon*********************************/
-    //In this case, the curved pentagon is divided into a curved triangle and two triangles
-    //And the alive region is the Complement of the whole cell
-        //step-1: Get the vertex from the outside corner along the diagonal direction AND Construct the curved triangle
-    Vec outside_corner = *outside_corners.begin();
-    Vec vertex = grid.center(index)*2 - outside_corner;
-    CurvedTriangle curvedTriangle(boundaryCurve, vertex, lambda);
-
-        //step-2: Specify the two triangles
-    //Get Intersection points
-    Vec intersection_1 = boundaryCurve.getPoint(lambda.first);
-    Vec intersection_2 = boundaryCurve.getPoint(lambda.second);
-
-    //Find the corner away from the outside corner, this corner will be the vertex of triangle
-    Vec vertex_1 = outside_corner + getDirection(intersection_1, outside_corner) * grid.get_h();
-    Vec vertex_2 = outside_corner + getDirection(intersection_2, outside_corner) * grid.get_h();
-    //Construct the triangle
-    Triangle triangle_1(vertex_1, vertex, intersection_1);
-    Triangle triangle_2(vertex_2, vertex, intersection_2);
+    // //Find the corner away from the outside corner, this corner will be the vertex of triangle
+    // Vec vertex_1 = outside_corner + getDirection(intersection_1, outside_corner) * grid.get_h();
+    // Vec vertex_2 = outside_corner + getDirection(intersection_2, outside_corner) * grid.get_h();
+    // //Construct the triangle
+    // Triangle triangle_1(vertex_1, vertex, intersection_1);
+    // Triangle triangle_2(vertex_2, vertex, intersection_2);
 
 
-        //step-3: Get the volume of the alive region
-    //The volume of the alive region
-    volume = grid.get_cell_volume() - curvedTriangle.getVolume() - triangle_1.Volume() - triangle_2.Volume();
-    //Get the centroid integral of the alive region
-    centroid = grid.center(index)*grid.get_cell_volume() - curvedTriangle.getCentroid()*curvedTriangle.getVolume() - triangle_1.Centroid()*triangle_1.Volume() - triangle_2.Centroid()*triangle_2.Volume();
-    //Get the centroid of the alive region
-    centroid = centroid/volume;
+    //     //step-3: Get the volume of the alive region
+    // //The volume of the alive region
+    // volume = grid.get_cell_volume() - curvedTriangle.getVolume() - triangle_1.Volume() - triangle_2.Volume();
+    // //Get the centroid integral of the alive region
+    // centroid = grid.center(index)*grid.get_cell_volume() - curvedTriangle.getCentroid()*curvedTriangle.getVolume() - triangle_1.Centroid()*triangle_1.Volume() - triangle_2.Centroid()*triangle_2.Volume();
+    // //Get the centroid of the alive region
+    // centroid = centroid/volume;
 }
 
 
@@ -271,6 +295,19 @@ void swap(double &a, double &b)
     b = temp;
 }
 
+void Modify(ParaSet &para, const MultiIndex &index, const Grid &grid, const CyclicCurve &boundaryCurve)
+{
+    for (auto &p : para)
+    {
+        bool isCorner = grid.isCorner(boundaryCurve.getPoint(p), index, 1e-12);
+        if (isCorner)
+        {
+            para.erase(p);
+            break;
+        }
+    }
+}
+
 
 ParaInterval AdjustParaInterval(const ParaInterval &para)
 {
@@ -279,8 +316,9 @@ ParaInterval AdjustParaInterval(const ParaInterval &para)
     if (para_2 - para_1 > Pi)
     {
         para_2 -= 2 * Pi;
+        swap(para_1, para_2);
     }
-    swap(para_1, para_2);
+
     return std::make_pair(para_1, para_2);
 }
 
@@ -293,8 +331,8 @@ ParaInterval AdjustParaInterval(const ParaSet &para)
     if (para_2 - para_1 > Pi)
     {
         para_2 -= 2 * Pi;
+        swap(para_1, para_2);
     }
-    swap(para_1, para_2);
     para_interval.first = para_1;
     para_interval.second = para_2;
     return para_interval;
