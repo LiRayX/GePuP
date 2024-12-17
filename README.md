@@ -75,7 +75,7 @@ Computering volume and centroid of cut cell.
 ## 2.Idea
 + 4th order operators coefficients can be writen to a funtion by swith case -2:2
 + Ghost cell cofficients can be treated in the same way, but swith case 0:4
-
++ something
 
 
 
