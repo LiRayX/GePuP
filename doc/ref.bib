@@ -1,0 +1,67 @@
+
+
+@article{NEFEM,
+author = {Sevilla, Ruben and Mendez, Sonia and Huerta, Antonio},
+year = {2008},
+month = {10},
+pages = {56-83},
+title = {Nurbs-enhanced finite element method (NEFEM)},
+volume = {76},
+journal = {International Journal for Numerical Methods in Engineering},
+doi = {10.1002/nme.2311}
+}
+@article{fourthorder,
+author = {Overton-Katz, Nathaniel and Gao, Xinfeng and Guzik, Stephen and Antepara, Oscar and Graves, Daniel T. and Johansen, Hans},
+title = {A Fourth-Order Embedded Boundary Finite Volume Method for the Unsteady Stokes Equations with Complex Geometries},
+journal = {SIAM Journal on Scientific Computing},
+volume = {45},
+number = {5},
+pages = {A2409-A2430},
+year = {2023},
+doi = {10.1137/22M1532019},
+
+URL = { 
+    
+        https://doi.org/10.1137/22M1532019
+    
+    
+
+},
+eprint = { 
+    
+        https://doi.org/10.1137/22M1532019
+    
+    
+
+}
+,
+    abstract = { Abstract. A fourth-order finite volume embedded boundary (EB) method is presented for the unsteady Stokes equations. The algorithm represents complex geometries on a Cartesian grid using EB, employing a technique to mitigate the “small cut-cell” problem without mesh modifications, cell merging, or state redistribution. Spatial discretizations are based on a weighted least-squares technique that has been extended to fourth-order operators and boundary conditions, including an approximate projection to enforce the divergence-free constraint. Solutions are advanced in time using a fourth-order additive implicit-explicit Runge–Kutta method, with the viscous and source terms treated implicitly and explicitly, respectively. Formal accuracy of the method is demonstrated with several grid convergence studies, and results are shown for an application with a complex bio-inspired material. The developed method achieves fourth-order accuracy and is stable despite the pervasive small cells arising from complex geometries. }
+}
+
+@article{celllinking,
+title = {A strictly conservative Cartesian cut-cell method for compressible viscous flows on adaptive grids},
+journal = {Computer Methods in Applied Mechanics and Engineering},
+volume = {200},
+number = {9},
+pages = {1038-1052},
+year = {2011},
+issn = {0045-7825},
+doi = {https://doi.org/10.1016/j.cma.2010.05.015},
+url = {https://www.sciencedirect.com/science/article/pii/S0045782510001647},
+author = {Daniel Hartmann and Matthias Meinke and Wolfgang Schröder},
+keywords = {Cartesian grid methods, Immersed boundary methods, Cut-cell method, Compressible Navier–Stokes equations, Finite-volume method},
+abstract = {A Cartesian cut-cell method which allows the solution of two- and three-dimensional viscous, compressible flow problems on arbitrarily refined graded meshes is presented. The finite-volume method uses cut cells at the boundaries rendering the method strictly conservative in terms of mass, momentum, and energy. For three-dimensional compressible flows, such a method has not been presented in the literature, yet. Since ghost cells can be arbitrarily positioned in space the proposed method is flexible in terms of shape and size of embedded boundaries. A key issue for Cartesian grid methods is the discretization at mesh interfaces and boundaries and the specification of boundary conditions. A linear least-squares method is used to reconstruct the cell center gradients in irregular regions of the mesh, which are used to formulate the surface flux. Expressions to impose boundary conditions and to compute the viscous terms on the boundary are derived. The overall discretization is shown to be second-order accurate in L1. The accuracy of the method and the quality of the solutions are demonstrated in several two- and three-dimensional test cases of steady and unsteady flows.}
+}
+@article{stateredistribution,
+title = {A state redistribution algorithm for finite volume schemes on cut cell meshes},
+journal = {Journal of Computational Physics},
+volume = {428},
+pages = {109820},
+year = {2021},
+issn = {0021-9991},
+doi = {https://doi.org/10.1016/j.jcp.2020.109820},
+url = {https://www.sciencedirect.com/science/article/pii/S0021999120305945},
+author = {Marsha Berger and Andrew Giuliani},
+keywords = {Cut cells, Small cell problem, Embedded boundary finite volume scheme},
+abstract = {In this paper we develop a new technique, called state redistribution, that allows the use of explicit time stepping when approximating solutions to hyperbolic conservation laws on embedded boundary grids. State redistribution is a postprocessing technique applied after each time step or stage of the base finite volume scheme, using a time step that is proportional to the volume of the full cells. The idea is to stabilize the cut cells by temporarily merging them into larger, possibly overlapping neighborhoods, then replacing the cut cell values with a stabilized value that maintains conservation and accuracy. We present examples of state redistribution using two base schemes: MUSCL and a second order Method of Lines finite volume scheme. State redistribution is used to compute solutions to several standard test problems in gas dynamics on cut cell meshes, with both smooth and discontinuous solutions. We show that our method does not reduce the accuracy of the base scheme and that it successfully captures shocks in a non-oscillatory manner.}
+}

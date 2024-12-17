@@ -22,7 +22,7 @@
 \usepackage{xspace,amscd,rotating,latexsym,multicol,array,algorithm,subfigure}
 \usepackage{xeCJK,hyperref,listings}
 \usepackage{xcolor}
-
+\usepackage{tikz}
 \lstset{
     basicstyle=\ttfamily\footnotesize,
     keywordstyle=\color{blue},
