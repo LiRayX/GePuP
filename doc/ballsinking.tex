@@ -99,6 +99,16 @@ $$\boldsymbol \tau = -pI + \nu (\nabla \boldsymbol{u} + (\nabla \boldsymbol{u})^
 \end{equation}
 以上的计算采用$R$上的Gauss-Legendre型积分公式.
 
+\subsection{Cell Division}
+根据cell与边界曲线的位置关系,将其分为不同的类别.
+\begin{figure}[h]
+    \centering
+    \includegraphics{figure/cycle.png}
+    \caption{Cell Division}
+    \label{fig:cell_division}
+\end{figure}
+
+
 \subsection{Diffculties in the specific case}
 在大多数情况下,边界曲线与Cell只会切出一个部分,但是在某些特殊情况下,边界曲线会切出两个部分,如图\ref{fig:cut_cell_example}所示,阴影部分表示固体区域,在图中以虚线标记计算单元,实线表示边界曲线,蓝色实心点表示边界和单元的交点,可以看到边界曲线切出了两个部分.
 
@@ -110,6 +120,9 @@ $$\boldsymbol \tau = -pI + \nu (\nabla \boldsymbol{u} + (\nabla \boldsymbol{u})^
     \caption{Example: A cell is cut by the curve twice.}
     \label{fig:cut_cell_example}
 \end{figure}
+
+
+
 
 
 

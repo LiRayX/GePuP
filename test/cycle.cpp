@@ -104,12 +104,12 @@ int main()
     // std::cout << "Centroid: " << centroid << std::endl;
     // double distance = norm(centroid - cycle.getCenter()) - cycle.getRadius();
     // std::cout << "Distance: " << distance << std::endl;
-
+    plt::axis("equal");
     plotVec(centroid);
     plotGrid(grid);  
     plotCycle(cycle);
     plotCells(cellDivision, grid);
-    plt::save("cycle.svg");
+    plt::save("cycle.png");
 
     // std::cout << "Intersections Size: " << intersections.size() << std::endl;
     // for(const auto& para : intersections)

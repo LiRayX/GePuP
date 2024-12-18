@@ -23,6 +23,7 @@
 \usepackage{xeCJK,hyperref,listings}
 \usepackage{xcolor}
 \usepackage{tikz}
+\usepackage{svg}
 \lstset{
     basicstyle=\ttfamily\footnotesize,
     keywordstyle=\color{blue},

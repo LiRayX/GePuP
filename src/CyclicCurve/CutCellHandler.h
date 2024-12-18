@@ -237,20 +237,6 @@ void CutCellHandler::TwoInsideCorner4(const MultiIndex &index, const ParaSet &pa
 
     CurvedTriangle curvedTriangle_2(boundaryCurve, vertex_2, lambda_interval_2);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // /**********************************Computering the Curved Quadrilateral*********************************/
     // //In this case, the convex curved quadrilateral is divided into a curved triangle and a triangle
     // //And the alive region is the Complement of the whole cell
@@ -342,8 +328,9 @@ void CutCellHandler::FourInsideCorner(const MultiIndex &index, const ParaSet &pa
     Vec intersection_2 = boundaryCurve.getPoint(lambda.second);
     //Construct the curved triangle with the center of the circle
     CurvedTriangle curvedTriangle(boundaryCurve, center_cycle, lambda);
+    //Then minus the general triangle formed by the two intersection points and the center of the circle
     Triangle triangle  = Triangle(intersection_1, intersection_2, center_cycle);
-
+    //Get the volume of the alive region: complement of the whole cell
     volume = grid.get_cell_volume() - curvedTriangle.getVolume() + triangle.getVolume();
     centroid = grid.center(index)*grid.get_cell_volume() - curvedTriangle.getCentroid()*curvedTriangle.getVolume() + triangle.getCentroid()*triangle.getVolume();
     centroid = centroid/volume;
