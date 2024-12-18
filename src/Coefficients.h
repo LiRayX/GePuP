@@ -54,6 +54,13 @@ double SecondNormalDerivativeCoefficients(int i, double h);
 double CellAvr2FaceAvrCoefficients(int i);
 double CellAvr2NormalFaceAvrCoefficients(int i, double h);
 
+
+/**f(x) = \sum_j f(x_j)*L_j(x)  \sum_j f(x_j) \times\frac{\prod_{i \neq j} (x-x_i) }{\prod_{i \neq j}(x_j-x_i)} *****/
+/// @brief Natural extra plotation coefficients, generated from Lagarian Polynomial Interpolation, preparation for natural outflow or extra plotation in computering Duu
+/// @param i Manhattan distance for the computering cell/face
+/// @return coefficients
+double NaturalExtraPlotationCoefficients(int i);
+
 double GhostCellCoefficients(int layer, int i, double h, type t)
 {
     if (t == type::Dirichlet)
@@ -319,6 +326,32 @@ double CellAvr2NormalFaceAvrCoefficients(int i, double h)
             break;
         case 2:
             return -1.0/(12*h);
+            break;
+        default:
+            return 0.0;
+            break;
+    }
+}
+
+
+double NaturalExtraPlotationCoefficients(int i)
+{
+    switch (i)
+    {
+        case 1:
+            return 5.0;
+            break;
+        case 2:
+            return -10.0;
+            break;
+        case 3:
+            return 10.0;
+            break;
+        case 4:
+            return -5.0;
+            break;
+        case 5:
+            return 1.0;
             break;
         default:
             return 0.0;
