@@ -156,20 +156,31 @@ void CutCellHandler::OneInsideCorner(const MultiIndex &index, const ParaSet &par
 
 void CutCellHandler::TwoInsideCorner2(const MultiIndex &index, const ParaSet &para, const Grid &grid, const CyclicCurve &boundaryCurve)
 {
-
     ParaInterval lambda = AdjustParaInterval(para);
+    /**********************************Directly Computering the Curved Quadrilateral*********************************/
 
-    /**********************************Computering the Curved Quadrilateral*********************************/
-
-    Vec vertex_2 = *inside_corners.begin();
-    Vec vertex_1 = *inside_corners.rbegin();
+    Vec vertex_1 = *outside_corners.begin();
+    Vec vertex_2 = *outside_corners.rbegin();
     //Construct the curved quadrilateral
     CurvedQuadrilateral curvedQuadrilateral(boundaryCurve, vertex_1, vertex_2, lambda);
     //Get the volume of the alive region
-    volume = grid.get_cell_volume() - curvedQuadrilateral.getVolume();
-    //Get the centroid integral of the alive region
-    centroid = grid.center(index)*grid.get_cell_volume() - curvedQuadrilateral.getCentroid()*curvedQuadrilateral.getVolume();
-    centroid = centroid/volume;
+    volume = curvedQuadrilateral.getVolume();
+    centroid = curvedQuadrilateral.getCentroid();
+
+    /**********************************Cell Minus the Curved Quadrilateral*********************************/
+
+    // Vec vertex_2 = *inside_corners.begin();
+    // Vec vertex_1 = *inside_corners.rbegin();
+    // //Construct the curved quadrilateral
+    // CurvedQuadrilateral curvedQuadrilateral(boundaryCurve, vertex_1, vertex_2, lambda);
+    // //Get the volume of the alive region
+    // volume = grid.get_cell_volume() - curvedQuadrilateral.getVolume();
+    // //Get the centroid integral of the alive region
+    // centroid = grid.center(index)*grid.get_cell_volume() - curvedQuadrilateral.getCentroid()*curvedQuadrilateral.getVolume();
+    // centroid = centroid/volume;
+
+
+    
     /**********************************Computering the Curved Quadrilateral*********************************/
     //In this case, the convex curved quadrilateral is divided into a curved triangle and a triangle
     //And the alive region is the Complement of the whole cell
