@@ -37,7 +37,7 @@ Time integral for the space semi-discrete system.
 
 #### numlib.h
 
-Numerical integral
+Numerical integral, different version for scalar function and vector function
 
 #### Plot.h
 
@@ -68,14 +68,19 @@ Describe the ball in 2D.
 
 Dividing the cell into different type, according to the releative position to the ball.
 
+#### CurvedTriangle
+
+To computer the volume and centriod of the alive region of cut-cell
+
++ General triangle
++ Triangle with one curved edge, given by part of CyclicCurve
++ Quadrilateral with one curved edge, dividing into a curved triangle and a general triangle
+
+
 #### CellHandler.h
 
 Computering volume and centroid of cut cell.
 
-## 2.Idea
-+ 4th order operators coefficients can be writen to a funtion by swith case -2:2
-+ Ghost cell cofficients can be treated in the same way, but swith case 0:4
-+ case 4 need improve
 
 
 
