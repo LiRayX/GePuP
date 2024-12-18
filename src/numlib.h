@@ -38,6 +38,7 @@ inline double quad(const T_Func &g, double a, double b)
     R += g(u + GaussLegendreConstant4order::knots[k] * v) * GaussLegendreConstant4order::weights[k];
   return R * v;
 }
+
 template <class T_Func>
 double quad2D_scalar(const T_Func &g, double a, double b, double c, double d)
 {

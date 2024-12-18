@@ -7,6 +7,8 @@
 
 using MultiIndex = std::array<int, 2>;
 using Normal = std::array<int, 2>;
+using VecList = std::vector<Vec>;
+
 
 class Grid
 {
@@ -32,20 +34,30 @@ public:
   bool OnFace(int i, int j, int x, int y, const Vec &point, double tol) const;
   bool OnFace(MultiIndex index, Normal normal, const Vec &point, double tol) const;
 
-  bool isCorner(const Vec &point, const MultiIndex &index, double tol) const;
+  //Get 4 corner points of the cell
+  VecList getAllCorners(const MultiIndex &index) const;
+
+  //Check if the Point is on the Corner
+  bool isCorner(const MultiIndex &index, const Vec &point, double tol) const;
+  //Given two intersection points on the vertical faces, return the corner point
+  Vec getCutCorner(const MultiIndex &index, const Vec &intersection_1, const Vec &intersection_2, double tol) const;
+  //Given two intersection points on the parallel face, return the corner points
+  
   //Sign distance from the point to the face
   double SignDistance(MultiIndex index, Normal normal,const Vec &point) const;
   double Distance(MultiIndex index, Normal normal,const Vec &point) const;
-  //
+  //Specify the face of the point located
   Normal getDirection(MultiIndex index, const Vec &point, double tol) const;
 
-  //Return the center of the cell
+  //corner points located in the left-down side and the index should valids
   Vec operator()(int i, int j) const;
   Vec operator()(MultiIndex index) const;
+  //Return the center of the cell
   // Based on the left-down coord(i,j)
   Vec center(int i, int j) const;
   Vec center(MultiIndex index) const;
 
+  //Check if the index is valid
   bool isIndexValid(int i, int j) const;
   bool isIndexValid(MultiIndex index) const;
 
@@ -156,6 +168,15 @@ Vec Grid::center(MultiIndex index) const
   return center(index[0], index[1]);
 }
 
+VecList Grid::getAllCorners(const MultiIndex &index) const
+{
+  VecList corners;
+  corners.push_back(center(index)+Vec{-1/2.0*h, -1/2.0*h});
+  corners.push_back(center(index)+Vec{1/2.0*h, -1/2.0*h});
+  corners.push_back(center(index)+Vec{1/2.0*h, 1/2.0*h});
+  corners.push_back(center(index)+Vec{-1/2.0*h, 1/2.0*h});
+  return corners;
+}
 
 bool Grid::OnFace(int i, int j, int x, int y, const Vec &point, double tol) const
 {
@@ -211,39 +232,73 @@ double Grid::Distance(MultiIndex index, Normal normal, const Vec &point) const
 Normal Grid::getDirection(MultiIndex index, const Vec &point, double tol) const
 {
   Normal normal;
-  if (Distance(index, {0, 1}, point) < tol)
+  if (fabs(fabs(point[0] - center(index)[0]) - 1.0/2*h) < tol)
   {
-    normal = {0, 1};
+    int sign = (point[0] - center(index)[0] > 0) ? 1 : -1;
+    return Normal{sign, 0};
   }
-  else if (Distance(index, {0, -1}, point) < tol)
+  else if (fabs(fabs(point[1] - center(index)[1]) - 1.0/2*h) < tol)
   {
-    normal = {0, -1};
-  }
-  else if (Distance(index, {1, 0}, point) < tol)
-  {
-    normal = {1, 0};
-  }
-  else if (Distance(index, {-1, 0}, point) < tol)
-  {
-    normal = {-1, 0};
+    int sign = (point[1] - center(index)[1] > 0) ? 1 : -1;
+    return Normal{0, sign};
   }
   else
   {
-    normal = {0, 0};
+    assert(false);
   }
-  return normal;
+
+  // if (Distance(index, {0, 1}, point) < tol)
+  // {
+  //   normal = {0, 1};
+  // }
+  // else if (Distance(index, {0, -1}, point) < tol)
+  // {
+  //   normal = {0, -1};
+  // }
+  // else if (Distance(index, {1, 0}, point) < tol)
+  // {
+  //   normal = {1, 0};
+  // }
+  // else if (Distance(index, {-1, 0}, point) < tol)
+  // {
+  //   normal = {-1, 0};
+  // }
+  // else
+  // {
+  //   normal = {0, 0};
+  // }
 }
 
 
-bool Grid::isCorner(const Vec &point, const MultiIndex &index, double tol) const
+bool Grid::isCorner(const MultiIndex &index, const Vec &point, double tol = 1e-12) const
 {
   if (norm(abs(point-center(index)) - Vec{0.5*h, 0.5*h}) < tol)
   {
     return true;
   }
-  return false;
+  else
+  {
+    return false;
+  }
 }
 
+Vec Grid::getCutCorner(const MultiIndex &index, const Vec &intersection_1, const Vec &intersection_2, double tol = 1e-12) const
+{
+  Vec cut_corner{intersection_1[0], intersection_2[1]};
+  if (isCorner(index, cut_corner, tol))
+  {
+    return cut_corner;
+  }
+  else if(isCorner(index, {intersection_2[0], intersection_1[1]}, tol))
+  {
+    cut_corner = {intersection_2[0], intersection_1[1]};
+    return cut_corner;
+  }
+  else
+  {
+    assert(false);
+  }
+}
 
 std::ostream &operator<<(std::ostream &os, const Grid &g)
 {

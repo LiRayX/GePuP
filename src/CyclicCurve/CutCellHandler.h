@@ -57,6 +57,8 @@ public:
 protected:
     double volume;
     Vec centroid;
+    int num_inside_corners;
+    //The Following Will Be Droped In The Future Version
     VecList inside_corners;
     VecList outside_corners;
 };
@@ -65,12 +67,14 @@ protected:
 
 void CutCellHandler::ClassifyCorners(const MultiIndex &index, const Grid &grid, const CyclicCurve &boundaryCurve)
 {
-    VecList corners = {grid(index[0], index[1]), grid(index[0] + 1, index[1]), grid(index[0] + 1, index[1] + 1), grid(index[0], index[1] + 1)};
+    VecList corners = grid.getAllCorners(index);
+    num_inside_corners = 0;
     for (const auto &corner : corners)
     {
-        if ((norm(corner-boundaryCurve.getCenter()) - boundaryCurve.getRadius()) < 0)
+        if (boundaryCurve.getSignDistance(corner) < 0)
         {
             inside_corners.push_back(corner);
+            num_inside_corners++;
         }
         else
         {
@@ -99,9 +103,8 @@ void CutCellHandler::Handler(const MultiIndex &index, ParaSet &para, const Grid 
         break;
     }
     //The number of outside corners
-    int num_inside_corner = inside_corners.size();
     //According to the number of outside corners, we can determine the volume of the cut-cell
-    switch (num_inside_corner)
+    switch (num_inside_corners)
     {
         //All outside the circle, if this happens, then a neithbor is cut by the circle fourth times
     case 0:
@@ -137,9 +140,10 @@ void CutCellHandler::OneInsideCorner(const MultiIndex &index, const ParaSet &par
     /**********************************Computering the Curved Quadrilateral*********************************/
     //In this case, the convex curved quadrilateral is divided into a curved triangle and a triangle
     //And the alive region is the Complement of the whole cell
-    Vec corner = *inside_corners.begin();
+    // Vec vertex = *inside_corners.begin();
+    Vec vertex = grid.getCutCorner(index, boundaryCurve.getPoint(lambda.first), boundaryCurve.getPoint(lambda.second));
     //Construct the curved triangle
-    CurvedTriangle curvedTriangle(boundaryCurve, corner, lambda);
+    CurvedTriangle curvedTriangle(boundaryCurve, vertex, lambda);
     //Get the volume of the alive region
     volume = grid.get_cell_volume() - curvedTriangle.getVolume();
     //Get the centroid integral of the alive region
@@ -154,32 +158,45 @@ void CutCellHandler::TwoInsideCorner2(const MultiIndex &index, const ParaSet &pa
 {
 
     ParaInterval lambda = AdjustParaInterval(para);
+
+    /**********************************Computering the Curved Quadrilateral*********************************/
+
+    Vec vertex_2 = *inside_corners.begin();
+    Vec vertex_1 = *inside_corners.rbegin();
+    //Construct the curved quadrilateral
+    CurvedQuadrilateral curvedQuadrilateral(boundaryCurve, vertex_1, vertex_2, lambda);
+    //Get the volume of the alive region
+    volume = grid.get_cell_volume() - curvedQuadrilateral.getVolume();
+    //Get the centroid integral of the alive region
+    centroid = grid.center(index)*grid.get_cell_volume() - curvedQuadrilateral.getCentroid()*curvedQuadrilateral.getVolume();
+    centroid = centroid/volume;
     /**********************************Computering the Curved Quadrilateral*********************************/
     //In this case, the convex curved quadrilateral is divided into a curved triangle and a triangle
     //And the alive region is the Complement of the whole cell
-    Vec vertex = *inside_corners.begin();
-    Vec vertex_t = *inside_corners.rbegin();
-    //Set the vertex of the curved triangle, each inside corner is OK
-    //Construct the curved triangle
-    CurvedTriangle curvedTriangle(boundaryCurve, vertex, lambda);
-    //Set the vertices of the triangle
-        //Get the intersection points
-    Vec intersection = boundaryCurve.getPoint(lambda.first);
-    //If the intersection point is on the same face as the vertex of the curved triangle
-    //Then the left point will be a vertex of the triangle
-    Vec diff = intersection - vertex;
-    double tol = 1e-12;
-    if (std::fabs(diff[0])<tol || std::fabs(diff[1])<tol)
-    {
-        intersection = boundaryCurve.getPoint(lambda.second);
-    }
-    Triangle triangle(vertex, vertex_t, intersection);
+    // Vec vertex = *inside_corners.begin();
 
-    volume = grid.get_cell_volume() - triangle.Volume() - curvedTriangle.getVolume();
-    centroid = grid.center(index)*grid.get_cell_volume() - triangle.Centroid()*triangle.Volume() - curvedTriangle.getCentroid()*curvedTriangle.getVolume();
-        //
-    //Get the centroid of the alive region
-    centroid = centroid/volume;
+    // Vec vertex_t = *inside_corners.rbegin();
+    // //Set the vertex of the curved triangle, each inside corner is OK
+    // //Construct the curved triangle
+    // CurvedTriangle curvedTriangle(boundaryCurve, vertex, lambda);
+    // //Set the vertices of the triangle
+    //     //Get the intersection points
+    // Vec intersection = boundaryCurve.getPoint(lambda.first);
+    // //If the intersection point is on the same face as the vertex of the curved triangle
+    // //Then the left point will be a vertex of the triangle
+    // Vec diff = intersection - vertex;
+    // double tol = 1e-12;
+    // if (std::fabs(diff[0])<tol || std::fabs(diff[1])<tol)
+    // {
+    //     intersection = boundaryCurve.getPoint(lambda.second);
+    // }
+    // Triangle triangle(vertex, vertex_t, intersection);
+
+    // volume = grid.get_cell_volume() - triangle.getVolume() - curvedTriangle.getVolume();
+    // centroid = grid.center(index)*grid.get_cell_volume() - triangle.getCentroid()*triangle.getVolume() - curvedTriangle.getCentroid()*curvedTriangle.getVolume();
+    //     //
+    // //Get the centroid of the alive region
+    // centroid = centroid/volume;
 }
 
 void CutCellHandler::TwoInsideCorner4(const MultiIndex &index, const ParaSet &para, const Grid &grid, const CyclicCurve &boundaryCurve)
@@ -191,37 +208,69 @@ void CutCellHandler::TwoInsideCorner4(const MultiIndex &index, const ParaSet &pa
 
     lambda_interval_1 = AdjustParaInterval(lambda_interval_1);
     lambda_interval_2 = AdjustParaInterval(lambda_interval_2);
-    /**********************************Computering the Curved Quadrilateral*********************************/
-    //In this case, the convex curved quadrilateral is divided into a curved triangle and a triangle
-    //And the alive region is the Complement of the whole cell
-    Vec vertex = *inside_corners.begin();
-    Vec vertex_t = *inside_corners.rbegin();
-    //Set the vertex of the curved triangle, each inside corner is OK
-    //Construct the curved triangle
-    CurvedTriangle curvedTriangle_1(boundaryCurve, vertex, lambda_interval_1);
-    CurvedTriangle curvedTriangle_2(boundaryCurve, vertex, lambda_interval_2);
-    //Set the vertices of the triangle
-        //Get the intersection points
-    Vec intersection_mid_1 = boundaryCurve.getPoint(lambda_interval_1.second);
-    Vec intersection_mid_2 = boundaryCurve.getPoint(lambda_interval_2.first);
-    //Find the corner away from the outside corner, this corner will be the vertex of triangle
-    Vec intersection = boundaryCurve.getPoint(lambda_interval_1.first);
-    //If the intersection point is on the same face as the vertex of the curved triangle
-    //Then the left point will be a vertex of the triangle
-    Vec diff = intersection - vertex;
-    double tol = 1e-12;
-    if (std::fabs(diff[0])<tol || std::fabs(diff[1])<tol)
-    {
-        intersection = boundaryCurve.getPoint(lambda_interval_2.second);
-    }
-    //Construct the triangle
-    Triangle triangle_1(vertex, intersection_mid_1, intersection_mid_2);
-    Triangle triangle_2(vertex, vertex_t, intersection);
 
-    volume = grid.get_cell_volume() - triangle_1.Volume() - triangle_2.Volume() - curvedTriangle_1.getVolume() - curvedTriangle_2.getVolume();
-    centroid = grid.center(index)*grid.get_cell_volume() - triangle_1.Centroid()*triangle_1.Volume() - triangle_2.Centroid()*triangle_2.Volume() - curvedTriangle_1.getCentroid()*curvedTriangle_1.getVolume() - curvedTriangle_2.getCentroid()*curvedTriangle_2.getVolume();
-    //Get the centroid of the alive region
-    centroid = centroid/volume;
+    /**********************************Computering The First Curved Triangle*********************************/
+
+    Vec intersection_1_0 = boundaryCurve.getPoint(lambda_interval_1.first);
+    Vec intersection_1_1 = boundaryCurve.getPoint(lambda_interval_1.second);
+
+    Vec vertex_1 = grid.getCutCorner(index, intersection_1_0, intersection_1_1);
+
+    CurvedTriangle curvedTriangle_1(boundaryCurve, vertex_1, lambda_interval_1);
+
+    /**********************************Computering The Second Curved Triangle*********************************/
+    Vec intersection_2_0 = boundaryCurve.getPoint(lambda_interval_2.first);
+    Vec intersection_2_1 = boundaryCurve.getPoint(lambda_interval_2.second);
+
+    Vec vertex_2 = grid.getCutCorner(index, intersection_2_0, intersection_2_1);
+
+    CurvedTriangle curvedTriangle_2(boundaryCurve, vertex_2, lambda_interval_2);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // /**********************************Computering the Curved Quadrilateral*********************************/
+    // //In this case, the convex curved quadrilateral is divided into a curved triangle and a triangle
+    // //And the alive region is the Complement of the whole cell
+    // Vec vertex = *inside_corners.begin();
+    // Vec vertex_t = *inside_corners.rbegin();
+    // //Set the vertex of the curved triangle, each inside corner is OK
+    // //Construct the curved triangle
+    // CurvedTriangle curvedTriangle_1(boundaryCurve, vertex, lambda_interval_1);
+    // CurvedTriangle curvedTriangle_2(boundaryCurve, vertex, lambda_interval_2);
+    // //Set the vertices of the triangle
+    //     //Get the intersection points
+    // Vec intersection_mid_1 = boundaryCurve.getPoint(lambda_interval_1.second);
+    // Vec intersection_mid_2 = boundaryCurve.getPoint(lambda_interval_2.first);
+    // //Find the corner away from the outside corner, this corner will be the vertex of triangle
+    // Vec intersection = boundaryCurve.getPoint(lambda_interval_1.first);
+    // //If the intersection point is on the same face as the vertex of the curved triangle
+    // //Then the left point will be a vertex of the triangle
+    // Vec diff = intersection - vertex;
+    // double tol = 1e-12;
+    // if (std::fabs(diff[0])<tol || std::fabs(diff[1])<tol)
+    // {
+    //     intersection = boundaryCurve.getPoint(lambda_interval_2.second);
+    // }
+    // //Construct the triangle
+    // Triangle triangle_1(vertex, intersection_mid_1, intersection_mid_2);
+    // Triangle triangle_2(vertex, vertex_t, intersection);
+
+    // volume = grid.get_cell_volume() - triangle_1.Volume() - triangle_2.Volume() - curvedTriangle_1.getVolume() - curvedTriangle_2.getVolume();
+    // centroid = grid.center(index)*grid.get_cell_volume() - triangle_1.Centroid()*triangle_1.Volume() - triangle_2.Centroid()*triangle_2.Volume() - curvedTriangle_1.getCentroid()*curvedTriangle_1.getVolume() - curvedTriangle_2.getCentroid()*curvedTriangle_2.getVolume();
+    // //Get the centroid of the alive region
+    // centroid = centroid/volume;
 }
 
 
@@ -231,8 +280,11 @@ void CutCellHandler::ThreeInsideCorner(const MultiIndex &index, const ParaSet &p
     /********************Computering the Curved Triangle Directly**************************************/
        //In this case, we computering the curved triangle directly
     //Construct the curved triangle with the outside corner
-    Vec outside_corner = *outside_corners.rbegin();
-    CurvedTriangle curvedTriangle(boundaryCurve, outside_corner, lambda);
+    // Vec vertex = *outside_corners.rbegin();
+
+    Vec vertex = grid.getCutCorner(index, boundaryCurve.getPoint(lambda.first), boundaryCurve.getPoint(lambda.second));
+
+    CurvedTriangle curvedTriangle(boundaryCurve, vertex, lambda);
     //The alive region is just the curved triangle
     volume = curvedTriangle.getVolume();
     centroid = curvedTriangle.getCentroid();
@@ -281,8 +333,8 @@ void CutCellHandler::FourInsideCorner(const MultiIndex &index, const ParaSet &pa
     CurvedTriangle curvedTriangle(boundaryCurve, center_cycle, lambda);
     Triangle triangle  = Triangle(intersection_1, intersection_2, center_cycle);
 
-    volume = grid.get_cell_volume() - curvedTriangle.getVolume() + triangle.Volume();
-    centroid = grid.center(index)*grid.get_cell_volume() - curvedTriangle.getCentroid()*curvedTriangle.getVolume() + triangle.Centroid()*triangle.Volume();
+    volume = grid.get_cell_volume() - curvedTriangle.getVolume() + triangle.getVolume();
+    centroid = grid.center(index)*grid.get_cell_volume() - curvedTriangle.getCentroid()*curvedTriangle.getVolume() + triangle.getCentroid()*triangle.getVolume();
     centroid = centroid/volume;
 
 }   
@@ -299,7 +351,7 @@ void Modify(ParaSet &para, const MultiIndex &index, const Grid &grid, const Cycl
 {
     for (auto &p : para)
     {
-        bool isCorner = grid.isCorner(boundaryCurve.getPoint(p), index, 1e-12);
+        bool isCorner = grid.isCorner(index, boundaryCurve.getPoint(p), 1e-12);
         if (isCorner)
         {
             para.erase(p);

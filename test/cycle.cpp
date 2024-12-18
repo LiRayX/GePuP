@@ -63,7 +63,7 @@ int main()
     // }
     MultiIndex index{11,10};
     // index = {5, 13}; //2
-    index  = {6, 14};
+    index  = {5, 13};
     CutCellMapping cutCellInfo = cellDivision.getCutCellInfo();
     ParaSet para = cutCellInfo[index];
     double lambda_1 = *para.begin();
@@ -83,7 +83,7 @@ int main()
     double volume = cutCellHandler.getVolume();
     std::cout << "Volume: " << volume << std::endl;
     Vec centroid = cutCellHandler.getCentroid();
-
+    std::cout << "Centroid: " << centroid << std::endl;
     // VecList outside_corners = cutCellHandler.getInsideCorners(index, grid, cycle);
     // std::cout << "Outside Corner Size: " << outside_corners.size() << std::endl;
     // for(const auto& corner : outside_corners)
@@ -91,15 +91,15 @@ int main()
     //     std::cout << corner << std::endl;
     // }
 
-    CurvedTriangle curvedTriangle(cycle, outside_corners[0], lambda);
-    double volume_curved = curvedTriangle.getVolume();
-    std::cout << "Curved Volume: " << volume_curved << std::endl;
+    // CurvedTriangle curvedTriangle(cycle, outside_corners[0], lambda);
+    // double volume_curved = curvedTriangle.getVolume();
+    // std::cout << "Curved Volume: " << volume_curved << std::endl;
 
     std::cout << "Cell Volume: " << grid.get_cell_volume() << std::endl;
-    std::cout << "Test Handler Volume: " << grid.get_cell_volume() - volume << std::endl;
+    // std::cout << "Test Handler Volume: " << grid.get_cell_volume() - volume << std::endl;
 
-    double diff = volume - volume_curved;
-    std::cout << "Diff: " << diff << std::endl;
+    // double diff = volume - volume_curved;
+    // std::cout << "Diff: " << diff << std::endl;
     // Vec centroid_1 = quad2D_vector(curvedTriangle., lambda_1, lambda_2, 0, 1) / quadresult;
     // std::cout << "Centroid: " << centroid << std::endl;
     // double distance = norm(centroid - cycle.getCenter()) - cycle.getRadius();

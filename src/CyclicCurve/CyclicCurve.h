@@ -34,6 +34,8 @@ public:
     Vec getNormal(double theta) const;
     Vec getTangent(double theta) const;
 
+    double getSignDistance(const Vec &point) const;
+
     void setIntersections(const Grid &grid);
     const ParaSet &getIntersections() const { return intersections; }
 
@@ -75,6 +77,11 @@ Vec CyclicCurve::getNormal(double theta) const
 Vec CyclicCurve::getTangent(double theta) const
 {
     return getTangent(getPoint(theta));
+}
+
+double CyclicCurve::getSignDistance(const Vec &point) const
+{
+    return norm(point - center) - radius;
 }
 
 void CyclicCurve::setIntersections(const Grid &grid)

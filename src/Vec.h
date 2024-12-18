@@ -274,3 +274,14 @@ inline double det(const Vec &lhs, const Vec &rhs)
 {
   return lhs[0] * rhs[1] - lhs[1] * rhs[0];
 }
+
+inline double argument(const Vec &v)
+{
+  return std::atan2(v[1], v[0]);
+}
+inline void swap(Vec &lhs, Vec &rhs)
+{
+  Vec temp = lhs;
+  lhs = rhs;
+  rhs = temp;
+}
