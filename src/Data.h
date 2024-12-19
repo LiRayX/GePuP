@@ -14,17 +14,42 @@ using MatrixXd = Eigen::MatrixXd;
 class ScalarData
 {
 public:
-
+    ScalarData() = default;
     ScalarData(const Grid &grid) : grid(grid) 
     {
         data = VectorXd::Zero(grid.get_size()[0] * grid.get_size()[1]);
     }
+
     ScalarData(const Grid &grid, const VectorXd &data) : grid(grid), data(data) {}
+    ScalarData &operator=(const ScalarData &other) 
+    {
+        if (this != &other) {
+            this->data = other.data;
+            // 假设 grid 是一个引用且不可更改，因此不需要赋值
+        }
+        return *this;
+    }
     //Set and get data
     void set_data(const VectorXd &data) { this->data = data; }
-    const VectorXd &get_data() const { return data; }
     void set_zero() { data.setZero(); }
     void set_one() { data.setOnes(); }
+
+    const VectorXd &get_data() const { return data; }
+    VectorXd &get_data() { return data; }
+
+    friend std::ostream &operator<<(std::ostream &os, const ScalarData &data)
+    {
+        for (int j=0; j<data.grid.get_size()[1]; j++)
+        {
+            for (int i=0; i<data.grid.get_size()[0]; i++)
+            {
+                os << data(i,j) << " ";
+            }
+            os << std::endl;
+        }
+        return os;
+    }
+
     //MultiIndex
     double operator()(int i, int j) const { return data(grid.MultiToSingle(i,j)); }
     double operator()(MultiIndex index) const { return data(grid.MultiToSingle(index)); }
@@ -53,11 +78,13 @@ protected:
 };
 
 
-class VecProxy {
+class VecProxy 
+{
 public:
     VecProxy(double &x, double &y) : x(x), y(y) {}
 
-    VecProxy &operator=(const Vec &vec) {
+    VecProxy &operator=(const Vec &vec) 
+    {
         x = vec[0];
         y = vec[1];
         return *this;
@@ -70,55 +97,131 @@ private:
     double &y;
 };
 
-
 class VectorData
 {
 public:
-    VectorData(const Grid &grid) : grid(grid) 
-    {
-        data_x = VectorXd::Zero(grid.get_size()[0] * grid.get_size()[1]);
-        data_y = VectorXd::Zero(grid.get_size()[0] * grid.get_size()[1]);
-    }
-    VectorData(const Grid &grid, const VectorXd &data_x, const VectorXd &data_y) : grid(grid), data_x(data_x), data_y(data_y) {}
+    //Constructors
+    VectorData(const Grid &grid) : grid(grid), data_x(grid), data_y(grid) {}
+    VectorData(const Grid &grid, const ScalarData &data_x, const ScalarData &data_y) : grid(grid), data_x(data_x), data_y(data_y) {}
+    VectorData(const Grid &grid, const VectorXd &data_x, const VectorXd &data_y) : grid(grid), data_x(grid, data_x), data_y(grid, data_y) {}
     //Set and get data
-    void set_data(const VectorXd &data_x, const VectorXd &data_y) { this->data_x = data_x; this->data_y = data_y; }
-    const VectorXd &get_data_x() const { return data_x; }
-    const VectorXd &get_data_y() const { return data_y; }
-
-    VectorXd &get_data_x() { return data_x; }
-    VectorXd &get_data_y() { return data_y; }
-
-    void set_zero() { data_x.setZero(); data_y.setZero(); }
-    void set_one() { data_x.setOnes(); data_y.setOnes(); }
-    //(i,j) or MultiIndex
-    VecProxy operator()(int i, int j) 
+    VectorData &operator=(const VectorData &other) 
     {
-        int index = grid.MultiToSingle(i, j);
-        return VecProxy{data_x[index], data_y[index]};
+        if (this != &other) 
+        {
+            this->data_x = other.data_x;
+            this->data_y = other.data_y;
+        }
+        return *this;
     }
-    VecProxy operator()(MultiIndex index) 
-    {
-        int single_index = grid.MultiToSingle(index);
-        return VecProxy{data_x[single_index], data_y[single_index]};
-    }
-    // Vec &operator()(MultiIndex index) { return Vec{data_x(grid.MultiToSingle(index)), data_y(grid.MultiToSingle(index))}; }
+    void set_data(const VectorXd &data_x, const VectorXd &data_y) { this->data_x.set_data(data_x); this->data_y.set_data(data_y); }
+    const ScalarData &get_data_x() const { return data_x; }
+    const ScalarData &get_data_y() const { return data_y; }
 
+    ScalarData &get_data_x() { return data_x; }
+    ScalarData &get_data_y() { return data_y; }
+
+    void set_value(int i, int j, const Vec &vec) { data_x(i,j) = vec[0]; data_y(i,j) = vec[1]; }
+    void set_value(MultiIndex index, const Vec &vec) { data_x(index) = vec[0]; data_y(index) = vec[1]; }
+
+    void set_zero() { data_x.set_zero(); data_y.set_zero(); }
+    void set_one() { data_x.set_one(); data_y.set_one(); }
+
+    Vec operator()(int i, int j) const { return Vec{data_x(i,j), data_y(i,j)}; }
+    Vec operator()(MultiIndex index) const { return Vec{data_x(index), data_y(index)}; }
+
+    //Proxy to set value
+    VecProxy operator()(int i, int j) { return VecProxy{data_x(i,j), data_y(i,j)}; }
+    VecProxy operator()(MultiIndex index) { return VecProxy{data_x(index), data_y(index)}; }
     //Binary operators
     VectorData operator+(const VectorData &rhs) const { return VectorData(grid, data_x + rhs.get_data_x(), data_y + rhs.get_data_y()); }
     VectorData operator-(const VectorData &rhs) const { return VectorData(grid, data_x - rhs.get_data_x(), data_y - rhs.get_data_y()); }
     VectorData operator*(double scalar) const { return VectorData(grid, data_x * scalar, data_y * scalar); }
     VectorData operator/(double scalar) const { return VectorData(grid, data_x / scalar, data_y / scalar); }
-    //Unary operators
+    VectorData operator*(Vec vec) const { return VectorData(grid, data_x * vec[0], data_y * vec[1]); }
+    VectorData operator/(Vec vec) const { return VectorData(grid, data_x / vec[0], data_y / vec[1]); }
+    //Unary operators   
     VectorData &operator+=(const VectorData &rhs) { data_x += rhs.get_data_x(); data_y += rhs.get_data_y(); return *this; }
     VectorData &operator-=(const VectorData &rhs) { data_x -= rhs.get_data_x(); data_y -= rhs.get_data_y(); return *this; }
     VectorData &operator*=(double scalar) { data_x *= scalar; data_y *= scalar; return *this; }
+    VectorData &operator/=(double scalar) { data_x /= scalar; data_y /= scalar; return *this; }
+    VectorData &operator*=(Vec vec) { data_x *= vec[0]; data_y *= vec[1]; return *this; }
+    VectorData &operator/=(Vec vec) { data_x /= vec[0]; data_y /= vec[1]; return *this; }
+    //Return the size of the vector data
+    int size() const { return data_x.size(); }
+    //Return the size of the grid
+    int grid_size() const { return grid.get_size()[0] * grid.get_size()[1]; }
 
-    ~VectorData() = default;
+    friend std::ostream &operator<<(std::ostream &os, const VectorData &data)
+    {
+        for (int j=0; j<data.grid.get_size()[1]; j++)
+        {
+            for (int i=0; i<data.grid.get_size()[0]; i++)
+            {
+                os << data(i,j) << " ";
+            }
+            os << std::endl;
+        }
+        return os;
+    }
+
+
 protected:
     const Grid &grid;
-    VectorXd data_x;
-    VectorXd data_y;   
+    ScalarData data_x;
+    ScalarData data_y;
 };
+
+// class VectorData
+// {
+// public:
+//     VectorData(const Grid &grid) : grid(grid) 
+//     {
+//         data_x = VectorXd::Zero(grid.get_size()[0] * grid.get_size()[1]);
+//         data_y = VectorXd::Zero(grid.get_size()[0] * grid.get_size()[1]);
+//     }
+//     VectorData(const Grid &grid, const VectorXd &data_x, const VectorXd &data_y) : grid(grid), data_x(data_x), data_y(data_y) {}
+//     //Set and get data
+//     void set_data(const VectorXd &data_x, const VectorXd &data_y) { this->data_x = data_x; this->data_y = data_y; }
+//     const VectorXd &get_data_x() const { return data_x; }
+//     const VectorXd &get_data_y() const { return data_y; }
+
+//     VectorXd &get_data_x() { return data_x; }
+//     VectorXd &get_data_y() { return data_y; }
+
+//     void set_zero() { data_x.setZero(); data_y.setZero(); }
+//     void set_one() { data_x.setOnes(); data_y.setOnes(); }
+//     //(i,j) or MultiIndex
+//     VecProxy operator()(int i, int j) 
+//     {
+//         int index = grid.MultiToSingle(i, j);
+//         return VecProxy{data_x[index], data_y[index]};
+//     }
+//     VecProxy operator()(MultiIndex index) 
+//     {
+//         int single_index = grid.MultiToSingle(index);
+//         return VecProxy{data_x[single_index], data_y[single_index]};
+//     }
+//     // Vec &operator()(MultiIndex index) { return Vec{data_x(grid.MultiToSingle(index)), data_y(grid.MultiToSingle(index))}; }
+
+//     //Binary operators
+//     VectorData operator+(const VectorData &rhs) const { return VectorData(grid, data_x + rhs.get_data_x(), data_y + rhs.get_data_y()); }
+//     VectorData operator-(const VectorData &rhs) const { return VectorData(grid, data_x - rhs.get_data_x(), data_y - rhs.get_data_y()); }
+//     VectorData operator*(double scalar) const { return VectorData(grid, data_x * scalar, data_y * scalar); }
+//     VectorData operator/(double scalar) const { return VectorData(grid, data_x / scalar, data_y / scalar); }
+//     //Unary operators
+//     VectorData &operator+=(const VectorData &rhs) { data_x += rhs.get_data_x(); data_y += rhs.get_data_y(); return *this; }
+//     VectorData &operator-=(const VectorData &rhs) { data_x -= rhs.get_data_x(); data_y -= rhs.get_data_y(); return *this; }
+//     VectorData &operator*=(double scalar) { data_x *= scalar; data_y *= scalar; return *this; }
+
+//     ~VectorData() = default;
+// protected:
+//     const Grid &grid;
+//     VectorXd data_x;
+//     VectorXd data_y;   
+// };
+
+
 
 
 

@@ -30,9 +30,10 @@ int main()
 
     VectorData data(grid);
     data(6,14) = Vec{0.4375,0.9375};
-    Vec data_1 = data(6,14);
-    data("x",6,14) = 0.99;
-    std::cout << data_1 << std::endl;
+    Vec vertex = data(6,14);
+    std::cout << data << std::endl;
+
+    // std::cout << data(6,14) << std::endl;
 
 
     //圆
@@ -50,7 +51,7 @@ int main()
     ParaSet para = cutCellInfo[index];
     Vec vertex_1 = {0.4375,0.9375};
     Vec In_1 = {0.427838,0.9375};
-    Vec vertex = {0.4375,0.875};
+    // Vec vertex = {0.4375,0.875};
     Triangle triangle_1(vertex_1, vertex, In_1);
   
 }
