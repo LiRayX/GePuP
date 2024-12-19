@@ -28,6 +28,7 @@ public:
   double get_cell_volume() const {return h*h;}
   // return the index of cell, counting from left-down, starting from 0
   int MultiToSingle(int i, int j) const;
+  int MultiToSingle(MultiIndex index) const;
   MultiIndex SingleToMulti(int index) const;
 
   //Check if the Point is on the Face
@@ -136,6 +137,10 @@ const int *Grid::get_size() const { return size; }
 int Grid::MultiToSingle(int i, int j) const
 {
   return i + j * size[1];
+}
+int Grid::MultiToSingle(MultiIndex index) const
+{
+  return index[0] + index[1] * size[1];
 }
 
 MultiIndex Grid::SingleToMulti(int index) const

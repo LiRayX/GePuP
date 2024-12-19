@@ -24,7 +24,7 @@ clean:
 	rm -f $(TARGET)
 	rm -f curve
 	rm -f testBC
-	rm -f testmap
+	rm -f testMap
 	rm -f testSP
 	rm -f testSplines
 	rm -f testVec

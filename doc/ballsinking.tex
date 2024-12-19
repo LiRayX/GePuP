@@ -29,6 +29,16 @@ $$\boldsymbol \tau = -pI + \nu (\nabla \boldsymbol{u} + (\nabla \boldsymbol{u})^
 固体的速度可以表示为平动和转动的合成:
 \begin{equation}\boldsymbol u(\boldsymbol{x})=\boldsymbol{u}_c+\boldsymbol{\omega}_c\times(\boldsymbol{x}-\boldsymbol{x_c}),\end{equation}
 
+
+\section{Cell Division}
+根据cell与边界曲线的位置关系,将其分为不同的类别如图\ref{fig:cell_division}.
+\begin{figure}[h]
+    \centering
+    \includegraphics{figure/cycle.png}
+    \caption{Cell Division}
+    \label{fig:cell_division}
+\end{figure}
+
 \section{Processing CutCell}
 按照Cell-Liniking method\cite{celllinking,stateredistribution}的思路,对于这些CutCell,首先需要计算出处于液体区域的体积和质心,然后考虑在质心处的多重Taylor展开,通过最小二乘法来计算展开式的系数\cite{fourthorder}.
 
@@ -99,14 +109,7 @@ $$\boldsymbol \tau = -pI + \nu (\nabla \boldsymbol{u} + (\nabla \boldsymbol{u})^
 \end{equation}
 以上的计算采用$R$上的Gauss-Legendre型积分公式.
 
-\subsection{Cell Division}
-根据cell与边界曲线的位置关系,将其分为不同的类别.
-\begin{figure}[h]
-    \centering
-    \includegraphics{figure/cycle.png}
-    \caption{Cell Division}
-    \label{fig:cell_division}
-\end{figure}
+
 
 
 \subsection{Diffculties in the specific case}
@@ -114,7 +117,7 @@ $$\boldsymbol \tau = -pI + \nu (\nabla \boldsymbol{u} + (\nabla \boldsymbol{u})^
 
 
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{figure/cut_cell_example.png}
     \caption{Example: A cell is cut by the curve twice.}

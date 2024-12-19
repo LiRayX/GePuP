@@ -52,6 +52,11 @@ public:
   // accessors
   double &operator[](int d) { return coord[d]; }
 
+  double &operator()(int d) { return coord[d]; }
+
+  
+
+
   const double &operator[](int d) const { return coord[d]; }
 
   const double *data() const { return &coord[0]; }

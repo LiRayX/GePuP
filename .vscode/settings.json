@@ -66,6 +66,7 @@
         "cinttypes": "cpp",
         "*.inc": "cpp",
         "core": "cpp",
-        "mprealsupport": "cpp"
+        "mprealsupport": "cpp",
+        "dense": "cpp"
     }
 }

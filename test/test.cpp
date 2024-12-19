@@ -6,6 +6,7 @@
 #include "../src/CyclicCurve/CellDivision.h"
 #include "../src/CyclicCurve/CurvedTriangle.h"
 #include "../src/CyclicCurve/CutCellHandler.h"
+#include "../src/Data.h"
 
 #include <iostream>
 class testfun: public ScalarFunction
@@ -26,6 +27,14 @@ int main()
     int n_seg = 16;
     double h = 1.0 / n_seg;
     Grid grid(low, high, h);
+
+    VectorData data(grid);
+    data(6,14) = Vec{0.4375,0.9375};
+    Vec data_1 = data(6,14);
+    data("x",6,14) = 0.99;
+    std::cout << data_1 << std::endl;
+
+
     //圆
     Vec center{0.52, 0.51+4*h};
     double radius = 0.2;
@@ -35,12 +44,13 @@ int main()
     CellDivision cellDivision;
     cellDivision.LocateAllCells(grid, cycle);
     MultiIndex index{6,14};
+
+
     CutCellMapping cutCellInfo = cellDivision.getCutCellInfo();
     ParaSet para = cutCellInfo[index];
     Vec vertex_1 = {0.4375,0.9375};
     Vec In_1 = {0.427838,0.9375};
     Vec vertex = {0.4375,0.875};
     Triangle triangle_1(vertex_1, vertex, In_1);
-    std::cout << "Triangle 1 Volume: " << triangle_1.Volume() << std::endl;
   
 }

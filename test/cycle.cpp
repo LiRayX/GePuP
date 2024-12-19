@@ -109,7 +109,7 @@ int main()
     plotGrid(grid);  
     plotCycle(cycle);
     plotCells(cellDivision, grid);
-    plt::save("cycle.png");
+    plt::save("cycle.svg");
 
     // std::cout << "Intersections Size: " << intersections.size() << std::endl;
     // for(const auto& para : intersections)
