@@ -23,9 +23,9 @@ public:
     ScalarData(const Grid &grid, const VectorXd &data) : grid(grid), data(data) {}
     ScalarData &operator=(const ScalarData &other) 
     {
-        if (this != &other) {
+        if (this != &other) 
+        {
             this->data = other.data;
-            // 假设 grid 是一个引用且不可更改，因此不需要赋值
         }
         return *this;
     }

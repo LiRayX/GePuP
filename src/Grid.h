@@ -5,9 +5,11 @@
 #include <array>
 #include "Vec.h"
 
+
 using MultiIndex = std::array<int, 2>;
 using Normal = std::array<int, 2>;
 using VecList = std::vector<Vec>;
+using MultiIndexList = std::vector<MultiIndex>;
 
 
 class Grid
@@ -31,6 +33,7 @@ public:
   int MultiToSingle(MultiIndex index) const;
   MultiIndex SingleToMulti(int index) const;
 
+  MultiIndexList getOuterCells() const;
   //Check if the Point is on the Face
   bool OnFace(int i, int j, int x, int y, const Vec &point, double tol) const;
   bool OnFace(MultiIndex index, Normal normal, const Vec &point, double tol) const;
@@ -93,6 +96,7 @@ protected:
   for (int i1 = 2; i1 < gd.get_size()[1]-2; i1++) \
     for (int i0 = 2; i0 < gd.get_size()[0]-2; i0++)
 
+                              
 
 Grid::Grid() = default;
 
@@ -348,14 +352,34 @@ MultiIndex Grid::LocateCell(const Vec &pos) const
   return index;
 }
 
-  bool Grid::isIndexValid(int i, int j) const
-  {
-    return i >= 0 && i < size[0] && j >= 0 && j < size[1];
-  }
-  bool Grid::isIndexValid(MultiIndex index) const
-  {
-    return isIndexValid(index[0], index[1]);
-  }
+bool Grid::isIndexValid(int i, int j) const
+{
+  return i >= 0 && i < size[0] && j >= 0 && j < size[1];
+}
+bool Grid::isIndexValid(MultiIndex index) const
+{
+  return isIndexValid(index[0], index[1]);
+}
+
+MultiIndexList Grid::getOuterCells() const
+{
+  MultiIndexList outerCells;
+  int m = size[0];
+  int n = size[1];
+  for (int i1 = 0; i1 < 2; i1++)                  
+      for (int i0 = 0; i0 < m; i0++)
+          outerCells.push_back({i0, i1}); 
+  for (int i1 = n - 2; i1 < n; i1++) 
+      for (int i0 = 0; i0 < m; i0++) 
+          outerCells.push_back({i0, i1});
+  for (int i1 = 0; i1 < 2; i1++)                  
+      for (int i0 = 2; i0 < n - 3; i0++)
+          outerCells.push_back({i0, i1});
+  for (int i1 = n - 2; i1 < n; i1++) 
+      for (int i0 = 2; i0 < m - 2; i0++)
+          outerCells.push_back({i0, i1});
+  return outerCells;
+}
 
 Grid Grid::refine() const { return Grid(lo(), hi(), h / 2); }
 

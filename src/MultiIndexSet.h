@@ -6,6 +6,7 @@
 #include "../lib/Eigen/Dense"
 #include "Grid.h"
 
+using Normal = std::array<int, 2>;
 using MultiIndex = std::array<int, 2>;
 using MultiIndexSet = std::unordered_set<MultiIndex>;
 using RangeMap = std::unordered_map<int, std::pair<int, int>>;
@@ -26,6 +27,9 @@ MultiIndexSet unionSets(const MultiIndexSet& set1, const MultiIndexSet& set2);
 MultiIndexSet differenceSets(const MultiIndexSet& set1, const MultiIndexSet& set2); 
 
 MultiIndexSet getOuterCells(const Grid& grid);
+
+std::ostream &operator<<(std::ostream &os, const MultiIndex &mi);
+
 /// @brief Hash function for MultiIndex to be used in unordered_set 
 namespace std 
 {
@@ -161,21 +165,38 @@ MultiIndexSet differenceSets(const MultiIndexSet& set1, const MultiIndexSet& set
 /// @brief Get the outer cells of the grid, which are the cells on the boundary or near the boundary need a ghost cell.
 /// @param grid 
 /// @return 
-MultiIndexSet getOuterCells(const Grid& grid)
+MultiIndexSet getOuterCells(const Grid& gd)
 {
     MultiIndexSet outerCells;
-    int m = grid.get_size()[0];
-    int n = grid.get_size()[1];
-    loop_cell_2(grid, i, j)
-    {
-        if(i == 0 || i == m-1 || j == 0 || j == n-1 || i == 1 || i == m-2 || j == 1 || j == n-2)
-        {
-            outerCells.insert({i, j});
-        }
-    }
+    for (int i1 = 0; i1 < 2; i1++)                  
+        for (int i0 = 0; i0 < gd.get_size()[0]; i0++)
+            outerCells.insert({i0, i1}); 
+    for (int i1 = gd.get_size()[1]-2; i1 < gd.get_size()[1]; i1++) 
+        for (int i0 = 0; i0 < gd.get_size()[0]; i0++) 
+            outerCells.insert({i0, i1});
+    for (int i1 = 0; i1 < 2; i1++)                  
+        for (int i0 = 2; i0 < gd.get_size()[1]-3; i1++)
+            outerCells.insert({i0, i1});
+    for (int i1 = gd.get_size()[1]-2; i1 < gd.get_size()[1]; i1++) 
+        for (int i0 = 2; i0 < gd.get_size()[0]-2; i0++)
+            outerCells.insert({i0, i1});
+    // int m = grid.get_size()[0];
+    // int n = grid.get_size()[1];
+    // loop_cell_2(grid, i, j)
+    // {
+    //     if(i == 0 || i == m-1 || j == 0 || j == n-1 || i == 1 || i == m-2 || j == 1 || j == n-2)
+    //     {
+    //         outerCells.insert({i, j});
+    //     }
+    // }
     return outerCells;
 }
 
+std::ostream &operator<<(std::ostream &os, const MultiIndex &mi)
+{
+    os << "(" << mi[0] << ", " << mi[1] << ")";
+    return os;
+}
 
 
 /// @brief Get the range of the first index of the MultiIndexSet
