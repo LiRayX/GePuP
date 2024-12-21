@@ -82,9 +82,6 @@ public:
   Grid refine() const;
   Grid coarsen() const;
 
-  void refine() {h /= 2; size[0] *= 2; size[1] *= 2;}
-  void coarsen() {h *= 2; size[0] /= 2; size[1] /= 2;}
-
 protected:
   Vec corner[2];
   double h;

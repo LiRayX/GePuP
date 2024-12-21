@@ -291,6 +291,11 @@ public:
     void set_zero() { face_avr_l.setZero(); face_avr_r.setZero(); face_avr_d.setZero(); face_avr_u.setZero(); }
     void set_one() { face_avr_l.setOnes(); face_avr_r.setOnes(); face_avr_d.setOnes(); face_avr_u.setOnes(); }
 
+    VectorXd &get_face_avr_l() { return face_avr_l; }
+    VectorXd &get_face_avr_r() { return face_avr_r; }
+    VectorXd &get_face_avr_d() { return face_avr_d; }
+    VectorXd &get_face_avr_u() { return face_avr_u; }
+
     const VectorXd &get_face_avr_l() const { return face_avr_l; }
     const VectorXd &get_face_avr_r() const { return face_avr_r; }
     const VectorXd &get_face_avr_d() const { return face_avr_d; }

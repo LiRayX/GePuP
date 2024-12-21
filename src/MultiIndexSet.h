@@ -250,6 +250,23 @@ MultiIndexSet getOuterCells(const Grid& gd)
     return outerCells;
 }
 
+MultiIndexSet getBoundaryCells(const Grid& gd)
+{
+    MultiIndexSet boundaryCells;
+    for (int i0 = 0; i0 < gd.get_size()[0]; i0++)
+    {
+        boundaryCells.insert({i0, 0});
+        boundaryCells.insert({i0, gd.get_size()[1] - 1});
+    }
+    for (int i1 = 0; i1 < gd.get_size()[1]; i1++)
+    {
+        boundaryCells.insert({0, i1});
+        boundaryCells.insert({gd.get_size()[0] - 1, i1});
+    }
+    return boundaryCells;
+}
+
+
 std::ostream &operator<<(std::ostream &os, const MultiIndex &mi)
 {
     os << "(" << mi[0] << ", " << mi[1] << ")";
