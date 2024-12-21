@@ -16,6 +16,20 @@ using RangeMap = std::unordered_map<int, std::pair<int, int>>;
 Normal operator-(const MultiIndex& a, const MultiIndex& b);
 /// @brief Find next cell index
 MultiIndex operator+(const MultiIndex& a, const Normal& b);
+
+MultiIndex operator*(int a, const MultiIndex& b) { return {a*b[0], a*b[1]}; }
+MultiIndex operator*(const MultiIndex& b, int a) { return {a*b[0], a*b[1]}; }
+
+MultiIndex normalize(const MultiIndex& a);
+
+int SignManhattanDistance(const MultiIndex &current_cell, const MultiIndex &other_cell);
+int ManhattanDistance(const MultiIndex &current_cell, const MultiIndex &other_cell);
+
+
+std::vector<MultiIndex> FourthOrderDiffCells(const MultiIndex &index);
+std::vector<MultiIndex> FourthOrderDiffCells_X(const MultiIndex &index);
+std::vector<MultiIndex> FourthOrderDiffCells_Y(const MultiIndex &index);
+
 /// @brief VonNeumann Neighbour
 std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index);
 std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index, const Grid &grid);
@@ -53,6 +67,14 @@ MultiIndex operator+(const MultiIndex& a, const Normal& b)
 {
     return {a[0] + b[0], a[1] + b[1]};
 }
+
+MultiIndex normalize(const MultiIndex& a)
+{
+    return {a[0] == 0 ? 0 : a[0] / std::abs(a[0]), a[1] == 0 ? 0 : a[1] / std::abs(a[1])};
+}
+
+
+
 std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index)
 {
     std::vector<MultiIndex> neighbour; 
@@ -63,6 +85,9 @@ std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index)
     }
     return neighbour;
 }
+
+
+
 
 std::vector<MultiIndex> VonNeumannNeighbour(const MultiIndex &index, const Grid &grid)
 {
@@ -92,6 +117,39 @@ std::vector<MultiIndex> ExtendedVonNeumannNeighbour(const MultiIndex &index, con
         }
     }
     return neighbour;
+}
+
+
+std::vector<MultiIndex> FourthOrderDiffCells(const MultiIndex &index)
+{
+    std::vector<MultiIndex> cells; 
+    std::vector<Normal> normals = {{0,0}, {0,0}, {0, 1}, {0, -1}, {1, 0}, {-1, 0}, {0, 2}, {0, -2}, {2, 0}, {-2, 0}};
+    for (const auto& normal : normals) 
+    {
+        cells.push_back(index + normal);
+    }
+    return cells;
+}
+
+std::vector<MultiIndex> FourthOrderDiffCells_X(const MultiIndex &index)
+{
+    std::vector<MultiIndex> cells; 
+    std::vector<Normal> normals = {{0,0}, {1, 0}, {-1, 0}, {2, 0}, {-2, 0}};
+    for (const auto& normal : normals) 
+    {
+        cells.push_back(index + normal);
+    }
+    return cells;
+}
+std::vector<MultiIndex> FourthOrderDiffCells_Y(const MultiIndex &index)
+{
+    std::vector<MultiIndex> cells; 
+    std::vector<Normal> normals = {{0,0}, {0, 1}, {0, -1}, {0, 2}, {0, -2}};
+    for (const auto& normal : normals) 
+    {
+        cells.push_back(index + normal);
+    }
+    return cells;
 }
 
 
@@ -174,11 +232,11 @@ MultiIndexSet getOuterCells(const Grid& gd)
     for (int i1 = gd.get_size()[1]-2; i1 < gd.get_size()[1]; i1++) 
         for (int i0 = 0; i0 < gd.get_size()[0]; i0++) 
             outerCells.insert({i0, i1});
-    for (int i1 = 0; i1 < 2; i1++)                  
-        for (int i0 = 2; i0 < gd.get_size()[1]-3; i1++)
+    for (int i0 = 0; i0 < 2; i0++)
+        for (int i1 = 2; i1 < gd.get_size()[1]-2; i1++)
             outerCells.insert({i0, i1});
-    for (int i1 = gd.get_size()[1]-2; i1 < gd.get_size()[1]; i1++) 
-        for (int i0 = 2; i0 < gd.get_size()[0]-2; i0++)
+    for (int i0 = gd.get_size()[0]-2; i0 < gd.get_size()[0]; i0++)
+        for (int i1 = 2; i1 < gd.get_size()[1]-2; i1++)
             outerCells.insert({i0, i1});
     // int m = grid.get_size()[0];
     // int n = grid.get_size()[1];
@@ -291,3 +349,11 @@ std::pair<int, int> getRangeOfSecondIndex(const MultiIndexSet& CutCells, int fir
 }
 
 
+int SignManhattanDistance(const MultiIndex &current_cell, const MultiIndex &other_cell)
+{
+    return (other_cell[0]-current_cell[0]) + (other_cell[1]-current_cell[1]);
+}
+int ManhattanDistance(const MultiIndex &current_cell, const MultiIndex &other_cell)
+{
+    return std::abs(other_cell[0]-current_cell[0]) + std::abs(other_cell[1]-current_cell[1]);
+}

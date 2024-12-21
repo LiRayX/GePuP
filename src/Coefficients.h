@@ -1,9 +1,9 @@
 #pragma once
 
 
-#include "../Vec.h"
-#include "../Grid.h"
-#include "../MultiIndexSet.h"
+#include "Vec.h"
+#include "Grid.h"
+#include "MultiIndexSet.h"
 
 enum class type
 {
@@ -74,6 +74,7 @@ double GhostCellCoefficients(int layer, int i, double h, type t)
     else
     {
         std::cerr << "Not a valid type" << std::endl;
+        return 0.0;
     }
 }
 
@@ -124,6 +125,7 @@ double GhostCellCoefficients_Dirichlet(int layer, int i)
     else
     {
         std::cerr << "Not a ghost cell" << std::endl;
+        return 0.0;
     }
 }
 
@@ -180,6 +182,7 @@ double GhostCellCoefficients_Neumann(int layer, int i, double h)
     else
     {
         std::cerr << "Not a ghost cell" << std::endl;
+        return 0.0;
     }
 }
 
@@ -190,19 +193,19 @@ double LaplacainCoefficients(int i, double h)
     switch (i)
     {
     case 0:
-        return -30.0 / (h * h);
+        return -30.0 / (12*h * h);
         break;
     case 1:
-        return 16.0 / (h * h);
+        return 16.0 / (12*h * h);
         break;
     case 2:
-        return -1.0 / (h * h);
+        return -1.0 / (12*h * h);
         break;
     case -1:
-        return 16.0 / (h * h);
+        return 16.0 / (12*h * h);
         break;
     case -2:
-        return -1.0 / (h * h);
+        return -1.0 / (12*h * h);
         break;
     default:
         return 0.0;
@@ -219,16 +222,16 @@ double GradientCoefficients(int i, double h)
         return 0.0;
         break;
     case 1:
-        return 8.0 / h;
+        return 8.0 / (12*h);
         break;
     case 2:
-        return -1.0 / h;
+        return -1.0 / (12*h);
         break;
     case -1:
-        return -8.0 / h;
+        return -8.0 /(12*h);
         break;
     case -2:
-        return 1.0 / h;
+        return 1.0 / (12*h);
         break;
     default:
         return 0.0;

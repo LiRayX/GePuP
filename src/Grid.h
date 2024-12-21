@@ -31,9 +31,13 @@ public:
   // return the index of cell, counting from left-down, starting from 0
   int MultiToSingle(int i, int j) const;
   int MultiToSingle(MultiIndex index) const;
+
+
   MultiIndex SingleToMulti(int index) const;
 
   MultiIndexList getOuterCells() const;
+
+  int layer(const MultiIndex &ghost_index) const;
   //Check if the Point is on the Face
   bool OnFace(int i, int j, int x, int y, const Vec &point, double tol) const;
   bool OnFace(MultiIndex index, Normal normal, const Vec &point, double tol) const;
@@ -77,6 +81,9 @@ public:
   MultiIndex LocateCell(const Vec &pos) const;
   Grid refine() const;
   Grid coarsen() const;
+
+  void refine() {h /= 2; size[0] *= 2; size[1] *= 2;}
+  void coarsen() {h *= 2; size[0] /= 2; size[1] /= 2;}
 
 protected:
   Vec corner[2];
@@ -385,6 +392,23 @@ Grid Grid::refine() const { return Grid(lo(), hi(), h / 2); }
 
 Grid Grid::coarsen() const { return Grid(lo(), hi(), h * 2); }
 
+int Grid::layer(const MultiIndex &ghost_index) const
+{
+  int i = ghost_index[0];
+  int j = ghost_index[1];
+  if (i==-1 || i==size[0] || j==-1 || j==size[1])
+  {
+    return 1;
+  }
+  else if (i==-2 || i==size[0]+1 || j==-2 || j==size[1]+1)
+  {
+    return 2;
+  }
+  else
+  {
+    return 0;
+  }
+}
 
 
 
